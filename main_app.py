@@ -3,6 +3,8 @@ from tabs.salary import show_salary_tab
 from tabs.su import show_su_tab
 from tabs.household import show_household_tab
 from tabs.food import show_food_tab
+from tabs.chatbot import show_chatbot_tab
+
 
 # -------- Intro-fanen med hele projektets overblik --------
 def show_intro_tab():
@@ -74,7 +76,7 @@ def show_intro_tab():
 st.set_page_config(page_title="Inflation & Økonomi", layout="wide")
 st.title("📊 BI Projekt – Inflationens Samfundsmæssige Påvirkning")
 
-tab0, tab1, tab2, tab3, tab4 = st.tabs(["📌 Intro", "💼 Salary", "🎓 SU", "🛒 Food", "🏠 Household"])
+tab0, tab1, tab2, tab3, tab4, tab5 = st.tabs(["📌 Intro", "💼 Salary", "🎓 SU", "🛒 Food", "🏠 Household", "🤖 Chatbot"])
 
 with tab0:
     show_intro_tab()
@@ -86,4 +88,5 @@ with tab3:
     show_food_tab()
 with tab4:
     show_household_tab()
-
+with tab5:
+    show_chatbot_tab()
