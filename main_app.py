@@ -4,15 +4,86 @@ from tabs.su import show_su_tab
 from tabs.household import show_household_tab
 from tabs.food import show_food_tab
 
-st.title("BI Projekt")
+# -------- Intro-fanen med hele projektets overblik --------
+def show_intro_tab():
+    st.title("📌 Projektintroduktion")
+    st.subheader("Inflationens påvirkning på løn, SU, mad og husholdning")
 
-tab1, tab2, tab3, tab4 = st.tabs(["Salary", "SU", "Household", "Food"])
+    st.markdown("---")
+    st.markdown("### 🎯 Projektformål")
+    st.markdown("""
+    Et Business Intelligence-projekt, der undersøger hvordan inflationen har påvirket:
 
+    - 📊 **Lønudviklingen** (mænd, kvinder og sektorer)
+    - 🎓 **SU-modtageres økonomi** og deres købekraft
+    - 🛒 **Madvarepriser** og deres stigning
+    - 🏠 **Husholdningsudgifter** og deres ændring over tid
+
+    Projektet fokuserer på perioden **2013–2023**, hvor inflationen har påvirket mange danskeres privatøkonomi.
+    """)
+
+    st.markdown("---")
+    st.markdown("### ❓ Problemstilling")
+    st.markdown("""
+    - Følger løn og SU med inflationen og prisudviklingen?
+    - Hvilke grupper mister reelt købekraft?
+    - Er der ubalancer mellem køn, sektorer eller befolkningsgrupper?
+    """)
+
+    st.markdown("---")
+    st.markdown("### 🔍 Forskningsspørgsmål")
+    st.markdown("""
+    - Hvordan har **reallønnen** udviklet sig i Danmark?
+    - Har **SU-modtagere** mistet købekraft over tid?
+    - Hvilke madvarer er steget mest i pris?
+    - Hvordan påvirkes en gennemsnitlig **husholdning** økonomisk?
+    """)
+
+    st.markdown("---")
+    st.markdown("### 🧪 Hypoteser")
+    st.markdown("""
+    - Løn og SU er **ikke steget i samme takt som inflation og priser**
+    - Mad- og husholdningsudgifter er blevet **relativt dyrere**
+    - **Kvinder og offentligt ansatte** er blandt de mest økonomisk pressede
+    """)
+
+    st.markdown("---")
+    st.markdown("### 💡 Løsning: Vores Streamlit BI-løsning")
+    st.markdown("""
+    - Interaktive faner med data og visualiseringer:
+        - **Løn**: Timefortjeneste fordelt på køn, sektor og år
+        - **SU**: Udvikling i støttebeløb og sammenligning med leveomkostninger
+        - **Mad**: Udvikling i priser på udvalgte varer
+        - **Husholdning**: Overslag på budget og udgiftsniveau over tid
+    - Brugervenlig præsentation af trends og mønstre
+    """)
+
+    st.markdown("---")
+    st.markdown("### 👥 Målgrupper")
+    st.markdown("""
+    - 📌 **Beslutningstagere og politikere**  
+    - 🧑‍🏫 **Undervisere og studerende**  
+    - 🧾 **Borgere og forbrugere**  
+    - 🧑‍💼 **Fagforeninger og arbejdsgivere**
+    """)
+
+    st.success("➡️ Brug fanerne i toppen til at udforske løn, SU, madpriser og husholdningsdata.")
+# ------------------------------------------------------------------
+
+# --------- App Layout med faner ---------
+st.set_page_config(page_title="Inflation & Økonomi", layout="wide")
+st.title("📊 BI Projekt – Inflationens Samfundsmæssige Påvirkning")
+
+tab0, tab1, tab2, tab3, tab4 = st.tabs(["📌 Intro", "💼 Salary", "🎓 SU", "🛒 Food", "🏠 Household"])
+
+with tab0:
+    show_intro_tab()
 with tab1:
     show_salary_tab()
 with tab2:
     show_su_tab()
 with tab3:
-    show_household_tab()
-with tab4:
     show_food_tab()
+with tab4:
+    show_household_tab()
+

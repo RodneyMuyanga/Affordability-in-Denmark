@@ -5,7 +5,7 @@ import os
 def show_salary_tab():
     st.header("📊 Løndata – STANDARDBEREGNET TIMEFORTJENESTE")
 
-    # --- DROPDOWNS ---
+    # --- Brugerinput ---
     group = st.selectbox("Vælg gruppe", ["Alle", "Mænd", "Kvinder"])
     year = st.selectbox("Vælg år", ["2013", "2016", "2020", "2023"])
     lønkategori = st.selectbox(
@@ -19,36 +19,50 @@ def show_salary_tab():
         ]
     )
 
-    # --- FILNAVN ---
-    file_dir = "Data/Salary"
+    # --- Filsti ---
+    base_dir = "Data/Salary"
     if group == "Alle":
-        file_path = os.path.join(file_dir, "Stats all 13 - 23 salary", f"all {year}.xlsx")
+        folder = "Stats all 13 - 23 salary"
+        prefix = "all"
     elif group == "Mænd":
-        file_path = os.path.join(file_dir, "Stats All men 13 - 23 salary", f"men {year}.xlsx")
+        folder = "Stats All men 13 - 23 salary"
+        prefix = "men"
     else:
-        file_path = os.path.join(file_dir, "Stats All women 13 - 23 salary", f"women {year}.xlsx")
+        folder = "Stats All women 13 - 23 salary"
+        prefix = "women"
 
+    file_path = os.path.join(base_dir, folder, f"{prefix} {year}.xlsx")
     st.caption(f"📂 Indlæser fil: `{file_path}`")
 
+    if not os.path.exists(file_path):
+        st.error("❌ Filen findes ikke.")
+        return
+
     try:
+        # Indlæs data uden header
         df = pd.read_excel(file_path, sheet_name="LONS30", header=None)
         df = df.dropna(how="all").dropna(axis=1, how="all")
 
-        # Find række der matcher lønkategori
-        match_row = df[df[3].astype(str).str.contains(lønkategori, case=False, na=False)]
+        # Rens kolonne 2
+        df[2] = df[2].astype(str).str.strip()
+
+        # Find række der matcher lønkategori (eksakt match)
+        match_row = df[df[2].str.lower() == lønkategori.lower()]
         if match_row.empty:
             st.warning(f"⚠️ '{lønkategori}' ikke fundet i filen.")
             return
 
-        # Ekstrahér sektordata (kolonne 4–8)
-        værdier = match_row.iloc[0, 4:9].astype(float).round(0)
-        sektorer = ["Sektorer i alt", "Stat", "Regioner", "Kommuner", "Virksomheder"]
+        row_idx = match_row.index[0]
+        header_row = 2  # sektorer er i række 2 (index 2)
+        sektorer = df.loc[header_row, 3:8].tolist()
+        værdier = df.loc[row_idx, 3:8].astype(float).round(0)
+
+        # Vis resultat
         df_vis = pd.DataFrame({
             "Sektor": sektorer,
             "Timefortjeneste (kr)": værdier
         })
 
-        # VISNING
         st.subheader("📊 Timefortjeneste fordelt på sektor")
         st.dataframe(df_vis, use_container_width=True)
         st.bar_chart(df_vis.set_index("Sektor"))
