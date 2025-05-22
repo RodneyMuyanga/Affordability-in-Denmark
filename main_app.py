@@ -1,6 +1,6 @@
 import streamlit as st
 from tabs.salary import show_salary_tab
-from tabs.su import show_su_tab
+from tabs.SU.su_tab import show_su_tab
 from tabs.household import show_household_tab
 from tabs.food import show_food_tab
 from tabs.chatbot import show_chatbot_tab
@@ -100,3 +100,4 @@ with tab4:
     show_household_tab()
 with tab5:
     show_chatbot_tab()
+    show_household_tab()
