@@ -57,7 +57,17 @@ def show_intro_tab():
         - **SU**: Udvikling i støttebeløb og sammenligning med leveomkostninger
         - **Mad**: Udvikling i priser på udvalgte varer
         - **Husholdning**: Overslag på budget og udgiftsniveau over tid
-    - Brugervenlig præsentation af trends og mønstre
+        - **Chatbot**: Mulighed for at stille spørgsmål om inflation og økonomi
+
+    - Den forventede løsning er en brugervenlig, interaktiv BI-applikation i Streamlit, som visualiserer og forklarer udviklingen i realløn og inflation.
+
+    - Den giver mulighed for at udforske samfundsøkonomiske trends, foretage sammenligninger og få bedre indsigt i leveomkostninger.
+
+    - Løsningen kan bidrage til bedre beslutninger for:
+        - 📌 **Beslutningstagere og politikere** (f.eks. ifm. reformer og tiltag)
+        - 🧾 **Borgere og forbrugere** (som ønsker overblik og viden)
+        - 🧑‍🏫 **Studerende og undervisere** (til analyse og læring)
+        - 🧑‍💼 **Fagforeninger og arbejdsgivere** (til lønforhandling og vurdering af realindkomst)
     """)
 
     st.markdown("---")

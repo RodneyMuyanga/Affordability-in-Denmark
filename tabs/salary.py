@@ -5,6 +5,8 @@ from tabs.salary_presentations.salary_presentation import show_presentation
 from tabs.salary_presentations.salary_development import show_salary_development
 from tabs.salary_presentations.salary_forecast import show_salary_forecast
 from tabs.salary_presentations.salary_conclusion import show_conclusion
+from tabs.salary_presentations.salary_data_preparation import show_salary_data_preparation
+from tabs.salary_presentations.salary_statistics import show_salary_statistics
 
 def show_salary_tab():
     st.header("📊 Salary Data – Presentation")
@@ -13,7 +15,9 @@ def show_salary_tab():
         "Purpose and motivation",
         "Salary development over time",
         "Inflation forecast",
-        "Conclusion"
+        "Conclusion",
+        "Data preparation",
+        "Statistical Analysis"
     ], horizontal=True)
 
     if agenda == "Purpose and motivation":
@@ -24,3 +28,7 @@ def show_salary_tab():
         show_salary_forecast()
     elif agenda == "Conclusion":
         show_conclusion()
+    elif agenda == "Data preparation":
+        show_salary_data_preparation()
+    elif agenda == "Statistical Analysis":
+        show_salary_statistics()
