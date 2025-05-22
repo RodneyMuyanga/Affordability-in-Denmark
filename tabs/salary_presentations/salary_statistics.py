@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import pandas as pd
 import seaborn as sns
@@ -11,15 +12,27 @@ def show_salary_statistics():
     st.markdown("""
     This section presents advanced statistical analysis of salary data using multiple techniques:
 
-    - Descriptive statistics
-    - Z-score outlier detection
-    - Histogram, KDE, boxplot, swarmplot, violinplot
+    - Descriptive statistics  
+    - Z-score outlier detection  
+    - Histogram, KDE, boxplot, swarmplot, violinplot  
     - Correlation heatmap (if applicable)
     """)
 
     group = st.selectbox("Select group", ["All", "Men", "Women"])
-    year = st.selectbox("Select year", ["2013", "2016", "2020", "2023"])
 
+    # Dynamisk årliste baseret på filnavne
+    folder_map = {
+        "All": "Data/Salary/Stats all 13 - 23 salary",
+        "Men": "Data/Salary/Stats All men 13 - 23 salary",
+        "Women": "Data/Salary/Stats All women 13 - 23 salary"
+    }
+
+    selected_folder = folder_map[group]
+    file_names = os.listdir(selected_folder)
+    available_years = sorted({f.split()[1][:4] for f in file_names if f.endswith(".xlsx")})
+    year = st.selectbox("Select year", available_years)
+
+    # Lønkategorier
     wage_mapping = {
         "STANDARD CALCULATED HOURLY EARNINGS": "STANDARDBEREGNET TIMEFORTJENESTE",
         "Bonuses per standard hour": "Genetillæg pr. standard time",
@@ -40,14 +53,18 @@ def show_salary_statistics():
 
     st.success("✅ Data loaded and cleaned successfully.")
 
+    # ---------------------
     # Descriptive statistics
+    # ---------------------
     st.markdown("### 📐 Descriptive Statistics")
     st.dataframe(df.describe().T)
 
-    # Z-score outlier detection
+    # ---------------------
+    # Outlier detection
+    # ---------------------
     st.markdown("### 📏 Outlier Detection using Z-score")
-    df["Z-score"] = zscore(df["Hourly earnings (DKK)"])
-    st.dataframe(df[["Sector", "Hourly earnings (DKK)", "Z-score"]])
+    df["Z-score"] = zscore(df["Timefortjeneste (kr)"])
+    st.dataframe(df[["Sektor", "Timefortjeneste (kr)", "Z-score"]])
 
     outliers = df[df["Z-score"].abs() > 2]
     if not outliers.empty:
@@ -56,36 +73,47 @@ def show_salary_statistics():
     else:
         st.success("No significant outliers detected.")
 
+    # ---------------------
     # Histogram + KDE
+    # ---------------------
     st.markdown("### 📊 Histogram with KDE")
     fig1, ax1 = plt.subplots()
-    sns.histplot(df["Hourly earnings (DKK)"], kde=True, bins=10, ax=ax1)
-    ax1.set_xlabel("Hourly earnings (DKK)")
+    sns.histplot(df["Timefortjeneste (kr)"], kde=True, bins=10, ax=ax1)
+    ax1.set_xlabel("Timefortjeneste (kr)")
     st.pyplot(fig1)
 
+    # ---------------------
     # Boxplot
+    # ---------------------
     st.markdown("### 📦 Boxplot")
     fig2, ax2 = plt.subplots()
-    sns.boxplot(x=df["Hourly earnings (DKK)"], ax=ax2)
+    sns.boxplot(x=df["Timefortjeneste (kr)"], ax=ax2)
     st.pyplot(fig2)
 
+    # ---------------------
     # Swarmplot
-    st.markdown("### 🐝 Swarmplot: Sector vs. Hourly Earnings")
+    # ---------------------
+    st.markdown("### 🐝 Swarmplot: Sektor vs. Timefortjeneste")
     fig3, ax3 = plt.subplots()
-    sns.swarmplot(x="Sector", y="Hourly earnings (DKK)", data=df, ax=ax3)
+    sns.swarmplot(x="Sektor", y="Timefortjeneste (kr)", data=df, ax=ax3)
     st.pyplot(fig3)
 
+    # ---------------------
     # Violinplot
-    st.markdown("### 🎻 Violinplot: Sector vs. Hourly Earnings")
+    # ---------------------
+    st.markdown("### 🎻 Violinplot: Sektor vs. Timefortjeneste")
     fig4, ax4 = plt.subplots()
-    sns.violinplot(x="Sector", y="Hourly earnings (DKK)", data=df, ax=ax4)
+    sns.violinplot(x="Sektor", y="Timefortjeneste (kr)", data=df, ax=ax4)
     st.pyplot(fig4)
 
-    # Correlation heatmap if multiple numeric columns exist
-    if df.select_dtypes(include='number').shape[1] > 1:
+    # ---------------------
+    # Correlation heatmap
+    # ---------------------
+    numeric_df = df.select_dtypes(include='number')
+    if numeric_df.shape[1] > 1:
         st.markdown("### 🔥 Correlation Heatmap")
         fig5, ax5 = plt.subplots()
-        sns.heatmap(df.select_dtypes(include='number').corr(), annot=True, cmap="coolwarm", ax=ax5)
+        sns.heatmap(numeric_df.corr(), annot=True, cmap="coolwarm", ax=ax5)
         st.pyplot(fig5)
     else:
         st.info("Only one numerical column – correlation heatmap skipped.")
