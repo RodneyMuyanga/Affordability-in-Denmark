@@ -1,12 +1,14 @@
 import streamlit as st
+from chatbot_logic import ask_chatbot_about_salary
 
 def show_chatbot_tab():
-    st.header("🤖 Chatbot Assistant")
+    st.subheader("🤖 Chatbot – Ask About Salary Data")
+    st.markdown("Ask questions based on real salary data from 2013–2023.")
 
-    st.markdown("Stil et spørgsmål relateret til løn, inflation, SU, mad eller husholdning og få et intelligent svar.")
+    user_question = st.text_input("What do you want to know about wages or trends?")
 
-    question = st.text_input("💬 Indtast dit spørgsmål:")
-
-    if question:
-        # Midlertidigt placeholder-svar
-        st.info(f"🤖 (Bot-svar eksempel): 'Tak for dit spørgsmål: \"{question}\" – denne funktion er under udvikling.'")
+    if user_question:
+        with st.spinner("Thinking..."):
+            response = ask_chatbot_about_salary(user_question)
+            st.success("Answer:")
+            st.write(response)
