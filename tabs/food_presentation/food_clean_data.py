@@ -2,6 +2,7 @@ import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
 import os
+from scipy.stats.mstats import winsorize
 
 def load_and_clean():
 
@@ -38,10 +39,16 @@ def load_and_clean():
     for col in data.columns[1:]:
      data[col] = pd.to_numeric(data[col], errors='coerce')
 
-
-    data = data.reset_index(drop=True)
+    # ── WINSORISERING ──
+    # f.eks. trim yderste 5% i hver kolonne
+    def _winsor(col):
+        # kolonnen skal være en numpy array eller pd.Series
+        return winsorize(col, limits=(0.05, 0.05))
+    
+    data[data.columns[1:]] = data[data.columns[1:]].apply(_winsor)
 
     # Remove rows where Category is NaN or all year values are NaN
+    data = data.reset_index(drop=True)
     data = data[data['Category'].notna() & data.iloc[:, 1:].notna().any(axis=1)]
 
     return raw, data, years

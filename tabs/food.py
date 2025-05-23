@@ -8,6 +8,7 @@ from tabs.food_presentation.food_visualization_expenditure import show_visualiza
 from tabs.food_presentation.food_presentation import show_presentation
 from tabs.food_presentation.food_cleaning import show_cleaning
 from tabs.food_presentation.food_conclusions import show_conclusions
+from tabs.food_presentation.food_price_expenditure_corr import show_price_expenditure_correlation
 
 def show_food_tab():
 
@@ -18,6 +19,7 @@ def show_food_tab():
         "Data cleaning",
         "Visualization of food prices",
         "Visualization of expenditure",
+        "Correlation",
         "Conclusions"
     ], horizontal=True)
 
@@ -29,8 +31,11 @@ def show_food_tab():
         show_visualization()
     elif agenda == "Visualization of expenditure":
         show_visualization_expenditure()
+    elif agenda == "Correlation":
+        show_price_expenditure_correlation()
     elif agenda == "Conclusions":
         show_conclusions()
+
 
    
 

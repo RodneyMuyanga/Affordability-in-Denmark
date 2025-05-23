@@ -2,6 +2,7 @@ import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
 import os
+from scipy.stats.mstats import winsorize
 
 def show_cleaning():
 
@@ -58,22 +59,90 @@ def show_cleaning():
     st.write(f"Raw data shape: {df.shape}")
     st.write(f"Cleaned data shape: {data.shape}")
 
-        # Vis hvor der er NaN
+           # Vis hvor der er NaN
     nan_counts = data.isna().sum()
     st.write("NaN values in cleaned data (per column):")
     st.write(nan_counts[nan_counts > 0])
+
+    st.write("Column data types (after cleaning):")
+    st.write(data.dtypes)
+
     st.success("✔️ Data has been successfully cleaned. 2 empty rows were removed, and all values are now numeric.")
 
 
+       # ── Outlier detection via IQR ──
+    st.subheader("🔎 Outlier Detection (IQR Method)")
+
+    # melt to long format
+    long = data.melt(
+        id_vars="Category",
+        value_vars=years,
+        var_name="Year",
+        value_name="Change"
+    )
+
+    def flag_iqr(group):
+        q1 = group.Change.quantile(0.25)
+        q3 = group.Change.quantile(0.75)
+        iqr = q3 - q1
+        lower, upper = q1 - 1.5 * iqr, q3 + 1.5 * iqr
+        group["is_outlier"] = ~group.Change.between(lower, upper)
+        return group
+
+    checked = long.groupby("Category").apply(flag_iqr)
+    outliers = checked[checked.is_outlier]
+
+    st.write(f"Found {len(outliers)} outlier observations:")
+    st.dataframe(outliers.reset_index(drop=True).head(10))
+
+    st.markdown("""
+    - **IQR Method:** Marks any value more than 1.5 × IQR below Q1 or above Q3.  
+    - Instead of dropping them, we **winsorize**: values below the 5th percentile are set to that boundary,  
+    and values above the 95th percentile are capped likewise.
+    """)
+
+    # ── Winsorization ──
+
+    winsorized = data.copy()
+    for col in years:
+        winsorized[col] = winsorize(winsorized[col], limits=(0.05, 0.05))
+
+    demo_cat = "01.1.1.6 Pastaprodukter og couscous" 
+
+    # Hent - og "squeeze" - lige den ene række ud som en Serie
+    vals_orig = data.loc[data['Category'] == demo_cat, years].iloc[0].dropna()
+    vals_win  = winsorized.loc[winsorized['Category'] == demo_cat, years].iloc[0].dropna()
+
+
+    # Plot side-by-side
+    fig, axes = plt.subplots(1, 2, figsize=(6, 2), constrained_layout=True)
+    xmin, xmax = -10, 15
+
+    axes[0].hist(vals_orig.values, bins=10, color='skyblue')
+    axes[0].set_title("Original", fontsize=8)
+    axes[0].set_xlim(xmin, xmax)
+
+    axes[1].hist(vals_win.values,  bins=10, color='skyblue')
+    axes[1].set_title("Winsorized", fontsize=8)
+    axes[1].set_xlim(xmin, xmax)
+
+    for ax in axes:
+        ax.tick_params(axis='both', labelsize=6)
+
+    st.pyplot(fig, use_container_width=False)
+
+
+    st.markdown("""
+****What changed after winsorization?**
+- In the **original** histogram, there’s a single extreme spike on the right that stretches the scale and compresses the rest of the data.  
+- After **winsorization**, that extreme value is capped at the 95th percentile, so the right tail pulls in and the distribution looks more balanced.  
+- This adjustment highlights the true central spread (approximately –10 % to +8 %) without one outlier skews the axis.
+""")
+
+
+
     st.write("### Raw data preview (before cleaning):")
-    raw_preview = df.iloc[:10, 1:]
-    if len(years) == raw_preview.shape[1] - 1:
-        raw_preview.columns = ['Unnamed'] + years
-    else:
-        st.error(f"Mismatch in raw preview: {raw_preview.shape[1]} columns, {len(years)} year labels")
-        st.stop()
- 
-    st.dataframe(raw_preview)
+    st.dataframe(df.head(10))
 
     st.write("### Cleaned data (used for plotting):")
     st.dataframe(data.head(10))
@@ -81,10 +150,6 @@ def show_cleaning():
 Even though the raw and cleaned tables appear nearly identical, the data has been validated and transformed to ensure accuracy.  
 This includes handling missing values, converting numeric values, and aligning columns for plotting.
 """)
-    st.write("Column data types (after cleaning):")
-    st.write(data.dtypes)
-
-
 
     st.subheader("🔍 Summary statistics (example category)")
 

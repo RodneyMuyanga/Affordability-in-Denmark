@@ -3,6 +3,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import os
 from sklearn.cluster import KMeans
+from scipy.stats.mstats import winsorize
 from tabs.food_presentation.food_clean_data import load_and_clean
 
 def show_visualization():
@@ -16,7 +17,7 @@ def show_visualization():
             "Avg Change per Category",
             "Volatility",
             "Cluster Analysis",
-            "Compare 3 Food Types"
+            "Compare Three Food Types"
         ])
 
     with tab2:

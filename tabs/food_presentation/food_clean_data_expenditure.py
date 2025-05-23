@@ -14,10 +14,10 @@ def load_and_clean_expenditure():
     years = temp.iloc[2, 2:].tolist()  # 2014, 2015, ...
 
     # --- indlæs rå data, spring 3 rækker over ---
-    raw = pd.read_excel(file_path, skiprows=3, header=None)
+    raw_df = pd.read_excel(file_path, skiprows=3, header=None)
 
     # --- vælg B-kolonne (Category) og C-Kolonner (år) ---
-    data = raw.iloc[:, 1:].copy()
+    data = raw_df.iloc[:, 1:].copy()
 
     # --- sæt kolonnenavne ---
     if len(years) == data.shape[1] - 1:
