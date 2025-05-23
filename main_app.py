@@ -4,6 +4,7 @@ from tabs.SU.su_tab import show_su_tab
 from tabs.household import show_household_tab
 from tabs.food import show_food_tab
 from tabs.chatbot import show_chatbot_tab
+from tabs.comparison.su_vs_inflation_analysis import run_su_vs_inflation_analysis
 
 
 # -------- Intro-fanen med hele projektets overblik --------
@@ -86,7 +87,7 @@ def show_intro_tab():
 st.set_page_config(page_title="Inflation & Økonomi", layout="wide")
 st.title("📊 BI Projekt – Inflationens Samfundsmæssige Påvirkning")
 
-tab0, tab1, tab2, tab3, tab4, tab5 = st.tabs(["📌 Intro", "💼 Salary", "🎓 SU", "🛒 Food", "🏠 Household", "🤖 Chatbot"])
+tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["📌 Intro", "💼 Salary", "🎓 SU", "🛒 Food", "🏠 Household", "🤖 Chatbot", "Comparison"])
 
 with tab0:
     show_intro_tab()
@@ -101,3 +102,22 @@ with tab4:
 with tab5:
     show_chatbot_tab()
     show_household_tab()
+
+with tab6:
+    st.header("📊 Comparison Subsections")
+    
+    # Simulate sub-tabs with radio buttons
+    sub_tab = st.radio(
+        "Select Comparison View:",
+        options=[
+            "SU vs Food Inflation",
+            # Add more sub-tabs here later if you want
+            # "Another Comparison",
+        ],
+        index=0
+    )
+    
+    if sub_tab == "SU vs Food Inflation":
+        run_su_vs_inflation_analysis()
+    # elif sub_tab == "Another Comparison":
+    #     show_another_comparison()
