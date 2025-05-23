@@ -8,7 +8,37 @@ from tabs.chatbot import show_chatbot_tab
 # -------- Intro tab with project overview --------
 def show_intro_tab():
     st.title("📌 Project Introduction")
-    st.subheader("The Impact of Inflation on Wages, Student Grants, Food, and Household Costs")
+    st.subheader("The Impact of Inflation on Living Costs in Denmark")
+
+    st.markdown("""
+    ### 📌 Why affordability and inflation?
+
+    We are currently experiencing a period of significant inflation in Denmark. This project explores how the rising cost of living has affected everyday expenses – including salaries, student grants, food prices, and housing – over the past 10 years.
+
+    **Focus:**
+    - What is inflation, and why does it matter?
+    - How do income and key expenses compare over time?
+    - How can Business Intelligence provide insights into affordability?
+
+    ### 🎯 BI Problem Definition
+
+    **Context & Challenge**  
+    Inflation has reduced the purchasing power of Danish citizens. While wages and SU have increased, so have core expenses like food and rent – and not always at the same pace. This growing imbalance affects affordability and quality of life.
+
+    **Purpose & Research Questions**  
+    This project investigates whether incomes in Denmark (2013–2023) have kept up with inflation and how that affects different groups – including students, households, and gender or sector divisions.
+
+    - Are salaries and SU following the rise in prices?
+    - Who is most financially pressured – and why?
+    - How do food and housing contribute to economic stress?
+
+    **Expected Solution**  
+    Using Business Intelligence tools such as visualizations, statistical methods, and machine learning, we uncover how income and expenses evolve and interact over time.
+
+    **Positive Impact**  
+    The results offer insights that can help shape future support schemes, wage negotiations, and public policy – enabling more balanced and equitable economic outcomes.
+    """)
+
 
     st.markdown("---")
     st.markdown("### 🎯 Project Purpose")
@@ -60,8 +90,6 @@ def show_intro_tab():
 
     - The expected solution is a user-friendly, interactive BI application built in Streamlit that visualizes and explains the relationship between real income and inflation.
 
-    - It enables exploration of socio-economic trends, comparisons, and deeper understanding of living costs.
-
     - This solution can support better decisions for:
         - 📌 **Policy makers and politicians** (e.g. for reforms or new initiatives)
         - 🧾 **Citizens and consumers** (who want insight and awareness)
@@ -79,13 +107,16 @@ def show_intro_tab():
     """)
 
     st.success("➡️ Use the top tabs to explore data on wages, student support, food prices, and household expenses.")
+
 # ------------------------------------------------------------------
 
 # --------- App Layout with tabs ---------
 st.set_page_config(page_title="Inflation & Economy", layout="wide")
 st.title("📊 BI Project – How Inflation Affects Society")
 
-tab0, tab1, tab2, tab3, tab4, tab5 = st.tabs(["📌 Intro", "💼 Salary", "🎓 SU", "🛒 Food", "🏠 Household", "🤖 Chatbot"])
+tab0, tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "📌 Intro", "💼 Salary", "🎓 SU", "🛒 Food", "🏠 Household", "🤖 Chatbot"
+])
 
 with tab0:
     show_intro_tab()

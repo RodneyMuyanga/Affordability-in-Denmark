@@ -45,7 +45,16 @@ def show_salary_development():
         st.error(f"❌ {error}")
     else:
         st.success(f"📂 Data loaded for {group}, {year}")
-        
+
+        explanations = {
+            "Sektorer i alt": "Total average across all sectors",
+            "Stat": "Government employees including public funds",
+            "Stat (inklusive sociale kasser og fonde)": "Government incl. social funds",
+            "Regioner": "Employees in regional authorities (e.g. healthcare)",
+            "Kommuner": "Municipal employees (e.g. schools, local services)",
+            "Virksomheder og organisationer": "Private companies and organizations"
+        }
+
         st.markdown("""
         **✔️ Data Cleaning Summary:**
         - Removed fully empty rows and columns
@@ -53,9 +62,16 @@ def show_salary_development():
         - Filtered only the selected wage category
         - Converted earnings to float and rounded values for clarity
 
+        **ℹ️ Sector Descriptions:**
+        - **Sektor i alt**: Total average across all listed sectors
+        - **Stat (inkl. sociale fonde)**: National public sector including social funds
+        - **Regioner**: Regional public employees, often healthcare
+        - **Kommuner**: Local municipal employees such as teachers, care workers
+        - **Virksomheder og organisationer**: Private companies and non-governmental organizations
+        
         **📊 Sector-wise Wages – Selected Year**
         """)
-        
+
         st.dataframe(df_vis, use_container_width=True)
         st.bar_chart(df_vis.set_index("Sektor"))
 
@@ -98,7 +114,6 @@ def show_salary_development():
         ax.tick_params(axis='both', labelsize=8)
         ax.grid(True)
         st.pyplot(fig)
-
 
         # ✅ Tilføj samlet lønudvikling over hele perioden
         løn_start = df_trend["Gennemsnitlig løn (kr)"].iloc[0]
