@@ -1,24 +1,25 @@
 import streamlit as st
+import pandas as pd
 
 def show_salary_data_preparation():
-    st.subheader("🧹 Data Preparation for Salary Data")
+    st.subheader("Data Preparation for Salary Data")
 
     st.markdown("""
     This section explains how we processed and cleaned salary data from Statistics Denmark to prepare it for Business Intelligence analysis.
 
     ---
     
-    ### 🧠 Why Data Preparation Matters in BI
+    ### Why Data Preparation Matters in BI
 
     In Business Intelligence, raw data is rarely ready for analysis. Proper preparation ensures:
 
-    - **Accuracy** in comparisons and trends
-    - **Consistency** across years and groups
-    - **Trustworthiness** of BI dashboards
+    - **Accuracy** in comparisons and trends  
+    - **Consistency** across years and groups  
+    - **Trustworthiness** of BI dashboards  
 
     ---
     
-    ### 🔍 ETL Process (Extract – Transform – Load)
+    ### ETL Process (Extract – Transform – Load)
 
     #### 1️⃣ Extract
     - Data is collected from `.xlsx` files by year (2013–2023) and group (All, Men, Women)
@@ -33,15 +34,22 @@ def show_salary_data_preparation():
       df.dropna(how="all").dropna(axis=1, how="all")
       ```
 
-    - Standardize wage category text:
+    - Standardize wage category text and handle missing values:
       ```python
-      df[2] = df[2].astype(str).str.strip().str.lower()
+      df[2] = df[2].fillna("ukendt kategori").astype(str).str.strip().str.lower()
       ```
 
     - Filter by category and extract relevant sectors
-    - Convert values to numeric and round:
+    - Validate numeric values and convert:
       ```python
-      df.loc[row_idx, 3:8].astype(float).round(0)
+      værdier = pd.to_numeric(værdier, errors='coerce')
+      if værdier.isnull().any():
+          # Handle non-numeric error
+      ```
+
+    - Round to full kr:
+      ```python
+      værdier.round(0).tolist()
       ```
 
     #### 3️⃣ Load
@@ -55,7 +63,7 @@ def show_salary_data_preparation():
 
     ---
     
-    ### ✅ Sprint 2 Requirements
+    ### Sprint 2 Requirements
 
     | Goal           | Fulfilled by |
     |----------------|--------------|
@@ -67,42 +75,37 @@ def show_salary_data_preparation():
     | **Engineered** | Ready for filtering and charts |
 
     ---
-    
-    ### 📊 Example: RAW vs. CLEANED – 2013
+    """)
 
-    **Raw excerpt:**
-    ```
-    Løn efter køn, tid, lønkomponenter og sektor
-    Enhed: Kr.
-    Mænd og kvinder i alt  2013.0  STANDARDBEREGNET TIMEFORTJENESTE  240.29 ...
-    ```
+    # Vis RAW vs. CLEANED data fra Excel
+    st.markdown("### Example: RAW vs. CLEANED – 2013 & 2023")
 
-    **Cleaned:**
-    ```
-    STANDARDBEREGNET TIMEFORTJENESTE  240.29  255.01 ...
-    Genetillæg pr. standard time  3.85  2.87 ...
-    ```
+    # RAW 2013
+    st.markdown("**📄 Raw data – 2013 (first 15 rows):**")
+    raw_2013 = pd.read_excel("Data/Salary/Stats all 13 - 23 salary/all 2013.xlsx", sheet_name="LONS30", header=None)
+    st.dataframe(raw_2013.head(15), use_container_width=True)
 
+    # CLEANED 2013
+    st.markdown("**✅ Cleaned data – 2013 (first 15 rows):**")
+    clean_2013 = raw_2013.dropna(how="all").dropna(axis=1, how="all")
+    clean_2013[2] = clean_2013[2].fillna("ukendt kategori").astype(str).str.strip().str.lower()
+    st.dataframe(clean_2013.head(15), use_container_width=True)
+
+    # RAW 2023
+    st.markdown("**📄 Raw data – 2023 (first 15 rows):**")
+    raw_2023 = pd.read_excel("Data/Salary/Stats all 13 - 23 salary/all 2023.xlsx", sheet_name="LONS30", header=None)
+    st.dataframe(raw_2023.head(15), use_container_width=True)
+
+    # CLEANED 2023
+    st.markdown("**✅ Cleaned data – 2023 (first 15 rows):**")
+    clean_2023 = raw_2023.dropna(how="all").dropna(axis=1, how="all")
+    clean_2023[3] = clean_2023[3].fillna("ukendt kategori").astype(str).str.strip().str.lower()
+    st.dataframe(clean_2023.head(15), use_container_width=True)
+
+    # Forskelstabel
+    st.markdown("""
     ---
-    
-    ### 📊 Example: RAW vs. CLEANED – 2023
-
-    **Raw excerpt:**
-    ```
-    Løn efter område, køn, tid, lønkomponenter og sektor
-    Enhed: Kr.
-    Hele landet  Mænd og kvinder i alt  2023.0  STANDARDBEREGNET TIMEFORTJENESTE  296.75 ...
-    ```
-
-    **Cleaned:**
-    ```
-    STANDARDBEREGNET TIMEFORTJENESTE  296.75  304.15 ...
-    Genetillæg pr. standard time  4.51  2.98 ...
-    ```
-
-    ---
-    
-    ### 🔍 Differences Between 2013 and 2023
+    ### Differences Between 2013 and 2023
 
     | Feature                  | 2013                                 | 2023                                 |
     |--------------------------|---------------------------------------|--------------------------------------|
@@ -111,11 +114,7 @@ def show_salary_data_preparation():
     | Columns                  | Consistent                            | Often shifted or renamed             |
     | Footnotes                | None                                  | Extra rows at the bottom             |
 
-    These changes made it necessary to build **flexible parsing logic**.
-
-    ---
-    
-    ✅ With this process, our salary data is **clean, structured, and BI-ready**.
+    These changes made it necessary to build **flexible parsing logic** with type checks and missing value handling.
     """)
 
-    st.success("Salary data is now prepared and ready for analysis.")
+    st.success("✅ With this process, our salary data is clean, structured, and BI-ready.")

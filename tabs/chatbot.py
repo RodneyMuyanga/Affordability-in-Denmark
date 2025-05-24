@@ -1,14 +1,22 @@
 import streamlit as st
-from chatbot_logic import ask_chatbot_about_salary
+from chatbot_logic import ask_chatbot_about_data  # korrekt funktion
 
 def show_chatbot_tab():
-    st.subheader("🤖 Chatbot – Ask About Salary Data")
-    st.markdown("Ask questions based on real salary data from 2013–2023.")
+    st.subheader("🤖 Chatbot – Stil spørgsmål om økonomiske data")
+    st.markdown("""
+    Du kan spørge chatbotten om:
+    - 💼 Lønudvikling i Danmark (2013–2023)
+    - 🥦 Fødevarepriser og forbrug
+    - 🎓 SU og antal modtagere
+    - 💹 Inflation og købekraft
 
-    user_question = st.text_input("What do you want to know about wages or trends?")
+    *Fx: "Hvordan har fødevarepriserne ændret sig?" eller "Hvad var lønnen i staten i 2020?"*
+    """)
+
+    user_question = st.text_input("🔍 Hvad vil du gerne vide?")
 
     if user_question:
-        with st.spinner("Thinking..."):
-            response = ask_chatbot_about_salary(user_question)
-            st.success("Answer:")
+        with st.spinner("Tænker..."):
+            response = ask_chatbot_about_data(user_question)
+            st.success("Svar:")
             st.write(response)
