@@ -1,12 +1,14 @@
 import streamlit as st
+
+# ----- Import tabs -----
 from tabs.salary import show_salary_tab
 from tabs.SU.su_tab import show_su_tab
-from tabs.household import show_household_tab
 from tabs.food import show_food_tab
 from tabs.chatbot import show_chatbot_tab
+from tabs.rent import show_rent_tab
+from tabs.comparison.su_vs_inflation_analysis import run_su_vs_inflation_analysis
 
-
-# -------- Intro tab with project overview --------
+# ----- Intro tab -----
 def show_intro_tab():
     st.title("📌 Project Introduction")
     st.subheader("The Impact of Inflation on Living Costs in Denmark")
@@ -27,7 +29,7 @@ def show_intro_tab():
     Inflation has reduced the purchasing power of Danish citizens. While wages and SU have increased, so have core expenses like food and rent – and not always at the same pace. This growing imbalance affects affordability and quality of life.
 
     **Purpose & Research Questions**  
-    This project investigates whether incomes in Denmark (2013–2023) have kept up with inflation and how that affects different groups – including students, households, and gender or sector divisions.
+    This project investigates whether incomes in Denmark (2013–2023) have kept up with inflation and how that affects different groups – including students, and gender or sector divisions.
 
     - Are salaries and SU following the rise in prices?
     - Who is most financially pressured – and why?
@@ -40,7 +42,6 @@ def show_intro_tab():
     The results offer insights that can help shape future support schemes, wage negotiations, and public policy – enabling more balanced and equitable economic outcomes.
     """)
 
-
     st.markdown("---")
     st.markdown("### 🎯 Project Purpose")
     st.markdown("""
@@ -49,7 +50,6 @@ def show_intro_tab():
     - 📊 **Wage development** (men, women, and sectors)
     - 🎓 **Student grant (SU)** recipients' purchasing power
     - 🛒 **Food prices** and their increase over time
-    - 🏠 **Household expenses** and how they've changed
 
     The project focuses on the period **2013–2023**, during which inflation has impacted the financial wellbeing of many Danes.
     """)
@@ -68,14 +68,13 @@ def show_intro_tab():
     - How has **real wage** developed in Denmark?
     - Have **students** lost purchasing power over time?
     - Which food items have increased most in price?
-    - How is the average **household** economically affected?
     """)
 
     st.markdown("---")
     st.markdown("### 🧪 Hypotheses")
     st.markdown("""
     - Wages and SU have **not increased at the same rate as inflation and prices**
-    - Food and household expenses have become **relatively more expensive**
+    - Food has become **relatively more expensive**
     - **Women and public sector workers** are among the most financially pressured groups
     """)
 
@@ -86,16 +85,15 @@ def show_intro_tab():
         - **Wages**: Hourly earnings by gender, sector, and year
         - **SU**: Trends in student support and comparison with living costs
         - **Food**: Price development for selected food items
-        - **Households**: Estimated budget and expense levels over time
         - **Chatbot**: Ask questions about inflation and economics
 
     - The expected solution is a user-friendly, interactive BI application built in Streamlit that visualizes and explains the relationship between real income and inflation.
 
     - This solution can support better decisions for:
-        - 📌 **Policy makers and politicians** (e.g. for reforms or new initiatives)
-        - 🧾 **Citizens and consumers** (who want insight and awareness)
-        - 🧑‍🏫 **Students and educators** (for analysis and learning)
-        - 🧑‍💼 **Unions and employers** (for negotiations and real wage evaluation)
+        - 📌 **Policy makers and politicians**
+        - 🧾 **Citizens and consumers**
+        - 🧑‍🏫 **Students and educators**
+        - 🧑‍💼 **Unions and employers**
     """)
 
     st.markdown("---")
@@ -107,49 +105,43 @@ def show_intro_tab():
     - 🧑‍💼 **Unions and employers**
     """)
 
-    st.success("➡️ Use the top tabs to explore data on wages, student support, food prices, and household expenses.")
+    st.success("➡️ Use the top tabs to explore data on wages, student support, food prices, and inflation analysis.")
 
 # ------------------------------------------------------------------
 
-# --------- App Layout with tabs ---------
+# ----- Streamlit page setup -----
 st.set_page_config(page_title="Inflation & Economy", layout="wide")
 st.title("📊 BI Project – How Inflation Affects Society")
 
-tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab6 = st.tabs([
-    "📌 Intro", "💼 Salary", "🎓 SU", "🛒 Food", "🏠 Household","🏡 Rent", "🤖 Chatbot", "Comparison"
+# ----- Tabs for navigation -----
+tabs = st.tabs([
+    "📌 Intro",         # tab0
+    "💼 Salary",       # tab1
+    "🎓 SU",           # tab2
+    "🛒 Food",         # tab3
+    "🏡 Rent",         # tab4
+    "🤖 Chatbot",      # tab5
+    "📊 Comparison"    # tab6
 ])
 
-with tab0:
+with tabs[0]:
     show_intro_tab()
-with tab1:
+with tabs[1]:
     show_salary_tab()
-with tab2:
+with tabs[2]:
     show_su_tab()
-with tab3:
+with tabs[3]:
     show_food_tab()
-with tab4:
-    show_household_tab()
-with tab5:
+with tabs[4]:
     show_rent_tab()
-with tab6:
+with tabs[5]:
     show_chatbot_tab()
-    show_household_tab()
-
-with tab6:
+with tabs[6]:
     st.header("📊 Comparison Subsections")
-    
-    # Simulate sub-tabs with radio buttons
     sub_tab = st.radio(
         "Select Comparison View:",
-        options=[
-            "SU vs Food Inflation",
-            # Add more sub-tabs here later if you want
-            # "Another Comparison",
-        ],
+        options=["SU vs Food Inflation"],
         index=0
     )
-    
     if sub_tab == "SU vs Food Inflation":
         run_su_vs_inflation_analysis()
-    # elif sub_tab == "Another Comparison":
-    #     show_another_comparison()
