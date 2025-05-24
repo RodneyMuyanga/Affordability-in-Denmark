@@ -6,8 +6,11 @@ from tabs.SU.su_tab import show_su_tab
 from tabs.food import show_food_tab
 from tabs.chatbot import show_chatbot_tab
 from tabs.rent import show_rent_tab
-from tabs.comparison.su_vs_inflation_analysis import run_su_vs_inflation_analysis
 
+# ----- Import comparison views -----
+from tabs.comparison.su_vs_inflation_analysis import run_su_vs_inflation_analysis
+from tabs.comparison.salary_vs_food import run_salary_vs_food_comparison
+from tabs.comparison.su_vs_salary import run_su_vs_salary_comparison
 # ----- Intro tab -----
 def show_intro_tab():
     st.title("📌 Project Introduction")
@@ -86,8 +89,7 @@ def show_intro_tab():
         - **SU**: Trends in student support and comparison with living costs
         - **Food**: Price development for selected food items
         - **Chatbot**: Ask questions about inflation and economics
-
-    - The expected solution is a user-friendly, interactive BI application built in Streamlit that visualizes and explains the relationship between real income and inflation.
+        - **Comparison**: Analyze how different factors relate and impact affordability
 
     - This solution can support better decisions for:
         - 📌 **Policy makers and politicians**
@@ -105,7 +107,7 @@ def show_intro_tab():
     - 🧑‍💼 **Unions and employers**
     """)
 
-    st.success("➡️ Use the top tabs to explore data on wages, student support, food prices, and inflation analysis.")
+    st.success("➡️ Use the top tabs to explore data on wages, student support, food prices, and comparisons.")
 
 # ------------------------------------------------------------------
 
@@ -138,10 +140,21 @@ with tabs[5]:
     show_chatbot_tab()
 with tabs[6]:
     st.header("📊 Comparison Subsections")
+
     sub_tab = st.radio(
         "Select Comparison View:",
-        options=["SU vs Food Inflation"],
+        options=[
+            "SU vs Food Inflation",
+            "Salary vs Food",
+            "SU vs Salary",
+        ],
         index=0
     )
+
     if sub_tab == "SU vs Food Inflation":
         run_su_vs_inflation_analysis()
+    elif sub_tab == "Salary vs Food":
+        run_salary_vs_food_comparison()
+    elif sub_tab == "SU vs Salary":
+        run_su_vs_salary_comparison()
+

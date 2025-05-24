@@ -32,7 +32,14 @@ def load_salary_data(group, year, wage_category):
 
         # Hent første match og forsøg at finde værdier i kolonne 3–7 (ofte der tallene ligger)
         row = match_row.iloc[0]
-        values = row[3:8]  # Justér ved behov (kan udvides til [4:9])
+        values = row[3:8]
+
+        # Rens ikke-numeriske symboler som “–”, “...”, mm.
+        values = values.apply(lambda x: str(x).replace(",", ".").replace("–", "").replace("...", "").strip())
+        values_numeric = pd.to_numeric(values, errors="coerce")
+
+        if values_numeric.isnull().any():
+            return None, "❌ Non-numeric or missing values in wage data."
 
         # Forsøg at finde sektorer – enten fra række 2 eller ved fallback
         try:
@@ -40,11 +47,6 @@ def load_salary_data(group, year, wage_category):
             sectors = [s if pd.notna(s) else f"Sektor {i+1}" for i, s in enumerate(sectors)]
         except:
             sectors = [f"Sektor {i+1}" for i in range(5)]
-
-        # Valider og konverter
-        values_numeric = pd.to_numeric(values, errors="coerce")
-        if values_numeric.isnull().any():
-            return None, "❌ Non-numeric or missing values in wage data."
 
         df_result = pd.DataFrame({
             "Sektor": sectors,
