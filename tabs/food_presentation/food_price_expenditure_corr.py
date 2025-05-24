@@ -10,6 +10,15 @@ def show_price_expenditure_correlation():
     _, price_df, price_years = load_and_clean()
     cons_df, exp_years     = load_and_clean_expenditure()
 
+    # ── DEBUG: Dump shapes, column names and a snippet ──
+    st.write("**Price data shape:**", price_df.shape)
+    st.write("**Price years labels:**", price_years)
+    st.dataframe(price_df.head())
+
+    st.write("**Expenditure data shape:**", cons_df.shape)
+    st.write("**Expenditure years labels:**", exp_years)
+    st.dataframe(cons_df.head())
+    
     price_long = price_df.melt(
         id_vars="Category",
         var_name="Year",
@@ -181,52 +190,28 @@ In other words, once prices exceed a certain threshold, demand falls off—highl
 """)
         
     with tab3:
-        # ── Overall Trend: Avg Price Change ──
+
         st.subheader("🔄 Overall Trend: Avg Annual Food Price Change")
-
-        # use price_df & price_years instead of undefined data/years
+        # ── 1) Overall Trend ──
+        st.subheader("🔄 Overall Trend: Avg Annual Food Price Change")
         yearly_avgs = price_df[price_years].mean(axis=0, skipna=True)
-        years_labels = [str(y)[:-3] for y in price_years]
+        years_labels = pd.Index(price_years, dtype=str)
 
+        # make this one smaller
         fig0, ax0 = plt.subplots(figsize=(5, 2.5), dpi=150, constrained_layout=True)
-        ax0.plot(years_labels, yearly_avgs.values, marker='o', linestyle='-', color='teal', label="Avg % Change")
+        ax0.plot(years_labels, yearly_avgs.values, marker='o', linestyle='-', color='teal')
+
         ax0.axhline(0, color='gray', linestyle='--', linewidth=0.8)
         ax0.set_title("Avg Annual % Change (all categories)", fontsize=8, pad=6)
         ax0.set_xlabel("Year", fontsize=7)
         ax0.set_ylabel("Avg Change (%)", fontsize=7)
+
+        # shrink tick labels
         ax0.tick_params(axis='x', labelsize=6, rotation=0)
         ax0.tick_params(axis='y', labelsize=6)
+
         ax0.grid(alpha=0.3, linewidth=0.5)
-
-        # ── Overall Trend: Total Expenditure ──
-        # pull "FORBRUG I ALT" from your cons_df & exp_years
-        total_ex = cons_df.loc[cons_df["Category"] == "FORBRUG I ALT", exp_years].iloc[0]
-        years_cons = exp_years
-
-        ax1 = ax0.twinx()
-        ax1.plot([str(y) for y in years_cons],
-                 total_ex.values,
-                 marker='s',
-                 linestyle='--',
-                 color='orange',
-                 label="Total Expenditure")
-        ax1.set_ylabel("Expenditure (DKK)", fontsize=7)
-        ax1.tick_params(axis='y', labelsize=6)
-
-        # combine legends
-        lines0, labels0 = ax0.get_legend_handles_labels()
-        lines1, labels1 = ax1.get_legend_handles_labels()
-        ax0.legend(lines0 + lines1, labels0 + labels1, fontsize=6, loc="upper left")
 
         st.pyplot(fig0, use_container_width=False)
 
-        st.markdown("""
-**Average price change vs. total expenditure:**  
-- The **teal line** shows the *avg annual % change* in food prices across all categories.  
-- The **orange dashed line** shows the *total household expenditure* on food.  
-
-You can see how price inflation and overall spending tracked each other over time:
-- From 2014–2021 both lines were relatively stable or gently rising.  
-- In 2022–2023, prices jumped sharply and total spending also climbed (though less steeply), reflecting how households adjusted budgets.  
-- A slight dip in total expenditure in 2024 suggests that consumers are beginning to pull back as prices stay high.
-""")
+       

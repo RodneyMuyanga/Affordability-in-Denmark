@@ -2,6 +2,7 @@ import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
 import os
+import re
 from scipy.stats.mstats import winsorize
 
 def load_and_clean():
@@ -14,41 +15,50 @@ def load_and_clean():
         st.stop()
 
     # --- LOAD HEADERS ---
-    temp = pd.read_excel(file_path, header=None)
+    raw = pd.read_excel(file_path, header=None)
+    temp = pd.read_excel(file_path, header=None, nrows=3)
     years = temp.iloc[2, 2:].tolist()
 
-    # --- DATA LOADING ---
-    raw = pd.read_excel(file_path, skiprows=3, header=None)
+    # ── Step 2: keep only those entries that start with 4 digits
+    year_rx = re.compile(r"^(\d{4})")
+    price_years = []
+    for x in years:
+        s = str(x).strip()
+        m = year_rx.match(s)
+        if m:
+            price_years.append(m.group(1))
+    if not price_years:
+        st.error("No valid year labels found in price header.")
+        st.stop()
 
-    # Extract and clean
-    data = raw.iloc[:, 1:].copy()
+    # --- DATA LOADING ---
+    df = pd.read_excel(file_path, skiprows=3, header=None).iloc[:, 1:].copy()
+
+    df.replace(r"^[\.\s]+$", pd.NA, regex=True, inplace=True)
 
     # Check if number of year labels matches number of columns
-    if len(years) == data.shape[1] - 1:
-        data.columns = ['Category'] + years
+    if len(price_years) == df.shape[1] - 1:
+        df.columns = ['Category'] + price_years
     else:
-        st.error(f"Mismatch in columns: Data has {data.shape[1]} columns, but only {len(years)} year labels.")
+        st.error(f"Mismatch in columns: Data has {df.shape[1]} columns, but only {len(years)} year labels.")
         st.stop()
+
     # Ensure 'Category' is string and rest are numeric
-    data['Category'] = data['Category'].astype(str)
+    df['Category'] = df['Category'].astype(str)
 
     # Clean common problematic characters before converting to numeric
-    data.replace(["–", "—", "", " ", ".."], pd.NA, inplace=True)
+    df.replace(["–", "—", "", " ", ".."], pd.NA, inplace=True)
 
-    # Convert all year columns to numeric format
-    for col in data.columns[1:]:
-     data[col] = pd.to_numeric(data[col], errors='coerce')
+    df[price_years] = df[price_years].fillna(0)
 
-    # ── WINSORISERING ──
-    # f.eks. trim yderste 5% i hver kolonne
-    def _winsor(col):
-        # kolonnen skal være en numpy array eller pd.Series
-        return winsorize(col, limits=(0.05, 0.05))
+    for y in price_years:
+        df[y] = pd.to_numeric(df[y], errors="coerce")
     
-    data[data.columns[1:]] = data[data.columns[1:]].apply(_winsor)
+    df[price_years] = df[price_years].apply(lambda col: winsorize(col, limits=(0.05,0.05)))
+    df = df[df["Category"].notna() & df[price_years].notna().any(axis=1)].reset_index(drop=True)
 
-    # Remove rows where Category is NaN or all year values are NaN
-    data = data.reset_index(drop=True)
-    data = data[data['Category'].notna() & data.iloc[:, 1:].notna().any(axis=1)]
+    # Keep only rows whose Category begins with a digit (e.g. "01.1.1.3 …")
+    df = df[df["Category"].str.match(r"^\d")]
+    df = df.reset_index(drop=True)
 
-    return raw, data, years
+    return raw, df, price_years
