@@ -3,12 +3,13 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import os
 from sklearn.cluster import KMeans
+from scipy.stats.mstats import winsorize
 from tabs.food_presentation.food_clean_data import load_and_clean
 
 def show_visualization():
 
     raw_df, data, years = load_and_clean()
-      
+
     st.header("Visualization of food prices")
 
     tab0, tab1, tab2, tab3, tab4, tab5, = st.tabs(["Overall Trend",
@@ -16,7 +17,7 @@ def show_visualization():
             "Avg Change per Category",
             "Volatility",
             "Cluster Analysis",
-            "Compare 3 Food Types"
+            "Compare Three Food Types"
         ])
 
     with tab2:
@@ -29,7 +30,7 @@ def show_visualization():
 
         if not row.empty:
             values = row.iloc[0, 1:]
-            values.index = pd.Index([str(year)[:-3] for year in years], dtype=str)
+            values.index = pd.Index(years, dtype=str)
             values = pd.to_numeric(values, errors='coerce')
 
         # --- LINE GRAPH ---
@@ -73,7 +74,7 @@ def show_visualization():
 
         # make it more compact
         fig3, ax3 = plt.subplots(
-            figsize=(4, 8),       # narrower and shorter
+            figsize=(6, 8),       # narrower and shorter
             dpi=120,
             constrained_layout=True
         )
@@ -111,7 +112,8 @@ def show_visualization():
         # ── 1) Overall Trend ──
         st.subheader("🔄 Overall Trend: Avg Annual Food Price Change")
         yearly_avgs = data[years].mean(axis=0, skipna=True)
-        years_labels = [str(y)[:-3] for y in years]
+        years_labels = pd.Index(years, dtype=str)
+
 
         # make this one smaller
         fig0, ax0 = plt.subplots(figsize=(5, 2.5), dpi=150, constrained_layout=True)
