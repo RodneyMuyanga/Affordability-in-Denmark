@@ -5,25 +5,33 @@ import streamlit as st
 
 def loadRentData(filepath):
     try:
-        df = pd.read_csv(filepath, encoding='utf-8', header=None)
+      
+        df = pd.read_excel(filepath, skiprows=2)
 
-        df = df.drop(columns=[0, 1])
-        df.rename(columns={2: 'Region'}, inplace=True)
-        kvartaler = ['2024K1', '2024K2', '2024K3', '2024K4']
-        df.columns = ['Region'] + kvartaler
+        df = df.drop(columns=[df.columns[0], df.columns[1]])
 
-        df.set_index('Region', inplace=True)
+        df.rename(columns={df.columns[0]: "Region"}, inplace=True)
 
-       # df.colums = df.columns.str.strip()
+        df = df.dropna(subset=["Region"])
+
+        df.columns = df.columns.astype(str).str.strip()
+
+        for col in df.columns[1:]:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+
+        df.set_index("Region", inplace=True)
+
         return df
     except Exception as e:
         print(f"Fejl under indlæsning: {e}")
         return None
+
+
     
 def plotRentData(df):
     fig, ax = plt.subplots()
     df.T.plot(marker='o', ax=ax)
-    ax.set_title("Udvikling i huslejeindeks i 2024")
+    ax.set_title("Udvikling i huslejeindeks 2021 - 2024")
     ax.set_xlabel("Kvartal")
     ax.set_ylabel("Indeks (2021 = 100)")
     ax.legend(title="Region")
@@ -32,9 +40,9 @@ def plotRentData(df):
     st.pyplot(fig)
 
 def main():
-    st.title("Huslejeindeks i Danmark – 2024")
+    st.title("Huslejeindeks i Danmark – 2024 (Almene boliger)")
 
-    df = loadRentData("Huslejeindeks_2024.csv")
+    df = loadRentData("Data/Rent/Huslejeindeks_2021-2024.xlsx")
     if df is not None:
         st.success("Data indlæst korrekt!")
         st.dataframe(df)

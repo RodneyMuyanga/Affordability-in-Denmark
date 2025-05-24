@@ -4,6 +4,9 @@ from tabs.su import show_su_tab
 from tabs.household import show_household_tab
 from tabs.food import show_food_tab
 from tabs.chatbot import show_chatbot_tab
+from tabs.rent import show_rent_tab
+
+
 
 # -------- Intro tab with project overview --------
 def show_intro_tab():
@@ -114,8 +117,8 @@ def show_intro_tab():
 st.set_page_config(page_title="Inflation & Economy", layout="wide")
 st.title("📊 BI Project – How Inflation Affects Society")
 
-tab0, tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "📌 Intro", "💼 Salary", "🎓 SU", "🛒 Food", "🏠 Household", "🤖 Chatbot"
+tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+    "📌 Intro", "💼 Salary", "🎓 SU", "🛒 Food", "🏠 Household","🏡 Rent", "🤖 Chatbot"
 ])
 
 with tab0:
@@ -129,4 +132,6 @@ with tab3:
 with tab4:
     show_household_tab()
 with tab5:
+    show_rent_tab()
+with tab6:
     show_chatbot_tab()

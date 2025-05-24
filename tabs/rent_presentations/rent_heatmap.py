@@ -3,10 +3,10 @@ import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from husleje_data import loadRentData
+from tabs.rent_presentations.rent_data import loadRentData, plotRentData
 
 def show_correlation_heatmap(df):
-    st.header("📊 Korrelationsanalyse af huslejeindeks")
+    st.header("📊 Korrelationsanalyse af huslejeindeks 2021 - 2024")
     st.write("Nedenfor ses et heatmap over korrelationerne mellem kvartalerne i 2024.")
 
     # Sørger for at vi kun kigger på numeriske kolonner (de 4 kvartaler)
@@ -30,7 +30,7 @@ def show_correlation_heatmap(df):
 def main():
     st.title("Husleje Heatmap - 2024")
 
-    df = loadRentData("Huslejeindeks_2024.csv")
+    df = loadRentData("Data/Rent/Huslejeindeks_2021-2024.xlsx")
     if df is not None:
         st.success("Data indlæst korrekt!")
         st.dataframe(df)
