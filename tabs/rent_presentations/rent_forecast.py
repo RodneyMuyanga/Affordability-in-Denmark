@@ -55,5 +55,5 @@ def forecast_rent(df):
     forecast_df["Forecast"] = forecast_df["Forecast"].round(2)
 
     st.markdown("""---""")
-    st.subheader("📋 Forecasted values:")
+    st.subheader("Forecasted values:")
     st.dataframe(forecast_df, use_container_width=True)

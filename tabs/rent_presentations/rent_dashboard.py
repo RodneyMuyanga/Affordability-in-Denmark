@@ -15,7 +15,6 @@ def main():
 
     df = loadRentData("Data/Rent/Huslejeindeks_2021-2024.xlsx")
     if df is not None:
-        st.success("✅ Data loaded successfully!")
         st.dataframe(df)
 
         tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
@@ -46,7 +45,7 @@ def main():
             forecast_rent(df)
 
     else:
-        st.error("❌ Could not load the rent data file.")
+        st.error("Could not load the rent data file.")
 
 if __name__ == "__main__":
     main()
