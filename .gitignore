@@ -1,4 +1,15 @@
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 
+# Jupyter
+.ipynb_checkpoints/
 
+# VS Code
+.vscode/
+
+# Mac/Windows skrald
+.DS_Store
+Thumbs.db
