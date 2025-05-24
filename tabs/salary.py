@@ -16,7 +16,7 @@ def show_salary_tab():
         "Data preparation",
         "Salary development over time",
         "Statistical Analysis",
-        "Inflation forecast",
+        "Salary Forecast and Inflation",
         "Conclusion"
     ], horizontal=True)
 
@@ -28,7 +28,7 @@ def show_salary_tab():
         show_salary_development()
     elif agenda == "Statistical Analysis":
         show_salary_statistics()
-    elif agenda == "Inflation forecast":
+    elif agenda == "Salary Forecast and Inflation":
         show_salary_forecast()
     elif agenda == "Conclusion":
         show_conclusion()

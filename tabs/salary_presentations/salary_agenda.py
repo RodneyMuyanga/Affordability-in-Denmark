@@ -1,7 +1,7 @@
 import streamlit as st
 
 def show_salary_agenda():
-    st.subheader("🗂️ Agenda for Presentation")
+    st.subheader("Agenda for Presentation")
 
     st.markdown("""
     This presentation will walk you through an end-to-end Business Intelligence analysis focused on the development of wages in Denmark over the last decade, in relation to inflation.
@@ -17,7 +17,7 @@ def show_salary_agenda():
     """)
 
     st.markdown("---")
-    st.markdown("### 📋 Agenda Overview with Curriculum Mapping")
+    st.markdown("### Agenda Overview with Curriculum Mapping")
 
     st.markdown("""
     | Tab                     | Content                                                | Curriculum Coverage                                      |

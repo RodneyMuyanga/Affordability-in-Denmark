@@ -6,10 +6,10 @@ import seaborn as sns
 from utils.salary_loader import load_salary_data
 
 def show_salary_development():
-    st.subheader("📈 Salary by sector and group")
+    st.subheader("Salary by sector and group")
 
     st.markdown("""
-    **🔍 Data Preparation (Sprint 2)**  
+    **Data Preparation**  
     This section demonstrates how salary data has been cleaned, transformed, and visualized to support further BI analysis.
     """)
 
@@ -56,20 +56,20 @@ def show_salary_development():
         }
 
         st.markdown("""
-        **✔️ Data Cleaning Summary:**
+        **Data Cleaning Summary:**
         - Removed fully empty rows and columns
         - Trimmed category names to avoid mismatches
         - Filtered only the selected wage category
         - Converted earnings to float and rounded values for clarity
 
-        **ℹ️ Sector Descriptions:**
+        **Sector Descriptions:**
         - **Sektor i alt**: Total average across all listed sectors
         - **Stat (inkl. sociale fonde)**: National public sector including social funds
         - **Regioner**: Regional public employees, often healthcare
         - **Kommuner**: Local municipal employees such as teachers, care workers
         - **Virksomheder og organisationer**: Private companies and non-governmental organizations
         
-        **📊 Sector-wise Wages – Selected Year**
+        **Sector-wise Wages – Selected Year**
         """)
 
         st.dataframe(df_vis, use_container_width=True)
@@ -79,7 +79,7 @@ def show_salary_development():
     # Salary development over time
     # -------------------------
     st.markdown("---")
-    st.markdown("### 📈 Salary development from 2013 to 2023")
+    st.markdown("### Salary development from 2013 to 2023")
 
     trend_data = []
 
@@ -98,11 +98,11 @@ def show_salary_development():
         df_trend["Procentvis ændring (%)"] = df_trend["Procentvis ændring (%)"].round(2)
 
         # Line chart – lønniveau
-        st.markdown("#### 📉 Line Chart – Gennemsnitlig løn over tid")
+        st.markdown("#### Line Chart – Gennemsnitlig løn over tid")
         st.line_chart(df_trend.set_index("År")[["Gennemsnitlig løn (kr)"]])
 
         # Bar chart – gennemsnitlig løn
-        st.markdown("#### 📊 Bar Chart – Gennemsnitlig løn pr. år")
+        st.markdown("#### Bar Chart – Gennemsnitlig løn pr. år")
         st.bar_chart(df_trend.set_index("År")[["Gennemsnitlig løn (kr)"]])
 
         # Punktdiagram – procentvis ændring
@@ -120,7 +120,7 @@ def show_salary_development():
         løn_slut = df_trend["Gennemsnitlig løn (kr)"].iloc[-1]
         samlet_stigning_pct = ((løn_slut - løn_start) / løn_start) * 100
 
-        st.markdown("#### 📈 Samlet lønudvikling over perioden")
+        st.markdown("#### Samlet lønudvikling over perioden")
         st.metric(
             label=f"Fra {df_trend['År'].iloc[0]} til {df_trend['År'].iloc[-1]}",
             value=f"{samlet_stigning_pct:.2f} %",

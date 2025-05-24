@@ -2,14 +2,14 @@ import streamlit as st
 import pandas as pd
 
 def show_salary_data_preparation():
-    st.subheader("🧹 Data Preparation for Salary Data")
+    st.subheader("Data Preparation for Salary Data")
 
     st.markdown("""
     This section explains how we processed and cleaned salary data from Statistics Denmark to prepare it for Business Intelligence analysis.
 
     ---
     
-    ### 🧠 Why Data Preparation Matters in BI
+    ### Why Data Preparation Matters in BI
 
     In Business Intelligence, raw data is rarely ready for analysis. Proper preparation ensures:
 
@@ -19,7 +19,7 @@ def show_salary_data_preparation():
 
     ---
     
-    ### 🔍 ETL Process (Extract – Transform – Load)
+    ### ETL Process (Extract – Transform – Load)
 
     #### 1️⃣ Extract
     - Data is collected from `.xlsx` files by year (2013–2023) and group (All, Men, Women)
@@ -63,7 +63,7 @@ def show_salary_data_preparation():
 
     ---
     
-    ### ✅ Sprint 2 Requirements
+    ### Sprint 2 Requirements
 
     | Goal           | Fulfilled by |
     |----------------|--------------|
@@ -78,7 +78,7 @@ def show_salary_data_preparation():
     """)
 
     # Vis RAW vs. CLEANED data fra Excel
-    st.markdown("### 📊 Example: RAW vs. CLEANED – 2013 & 2023")
+    st.markdown("### Example: RAW vs. CLEANED – 2013 & 2023")
 
     # RAW 2013
     st.markdown("**📄 Raw data – 2013 (first 15 rows):**")
@@ -105,7 +105,7 @@ def show_salary_data_preparation():
     # Forskelstabel
     st.markdown("""
     ---
-    ### 🔍 Differences Between 2013 and 2023
+    ### Differences Between 2013 and 2023
 
     | Feature                  | 2013                                 | 2023                                 |
     |--------------------------|---------------------------------------|--------------------------------------|
