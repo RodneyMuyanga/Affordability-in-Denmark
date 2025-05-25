@@ -206,8 +206,9 @@ def show_visualization():
             if key in data['Category'].values:
                 row = data[data['Category'] == key].iloc[0, 1:]
                 series = pd.to_numeric(row, errors='coerce')
-                series.index = [str(y)[:-3] for y in years]
+                series.index = [str(y) for y in years]
                 ax_s.plot(series.index, series.values, marker='o', markersize=3, label=key)
+
 
         ax_s.set_title("Price Development: Bread vs. Milk vs. Vegetables", fontsize=7, pad=4)
         ax_s.set_xlabel("Year", fontsize=6)

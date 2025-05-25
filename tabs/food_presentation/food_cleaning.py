@@ -32,7 +32,7 @@ def show_cleaning():
     st.write("Column data types (after cleaning):")
     st.write(data.dtypes)
 
-    st.success("✔️ Data has been successfully cleaned. 2 empty rows were removed, and all values are now numeric.")
+    st.success("✔️ Data has been successfully cleaned. Five rows, for products with no category or only missing values—were dropped, the extra metadata column was removed, and all remaining cells have been converted to numeric.")
 
 
        # ── Outlier detection via IQR ──

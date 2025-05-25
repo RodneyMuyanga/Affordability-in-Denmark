@@ -59,7 +59,7 @@ def show_visualization_expenditure():
         st.subheader("Average Total Food Expenditure per Household (DKK)")
 
         # Filtrer total-forbruget
-        total = df_long[df_long["Category"] == "FORBRUG I ALT"]
+        total = df_long[df_long["Category"] == "01 FØDEVARER OG IKKE-ALKOHOLISKE DRIKKEVARER"]
 
         # Plot totalforbrug
         fig_tot, ax_tot = plt.subplots(
