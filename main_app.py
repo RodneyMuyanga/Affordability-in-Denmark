@@ -11,6 +11,8 @@ from tabs.rent import show_rent_tab
 from tabs.comparison.su_vs_inflation_analysis import run_su_vs_inflation_analysis
 from tabs.comparison.salary_vs_food import run_salary_vs_food_comparison
 from tabs.comparison.su_vs_salary import run_su_vs_salary_comparison
+from tabs.comparison.rent_vs_suPrStudent import compare_rent_vs_su
+from tabs.comparison.rent_vs_food import compare_rent_vs_food 
 # ----- Intro tab -----
 def show_intro_tab():
     st.title("📌 Project Introduction")
@@ -147,6 +149,8 @@ with tabs[6]:
             "SU vs Food Inflation",
             "Salary vs Food",
             "SU vs Salary",
+            "Rent vs SU",
+            "Rent vs Food Inflation"
         ],
         index=0
     )
@@ -157,4 +161,10 @@ with tabs[6]:
         run_salary_vs_food_comparison()
     elif sub_tab == "SU vs Salary":
         run_su_vs_salary_comparison()
+    elif sub_tab == "Rent vs SU":
+        compare_rent_vs_su()
+    elif sub_tab == "Rent vs Food Inflation":
+        compare_rent_vs_food()
+
+    
 
