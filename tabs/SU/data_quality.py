@@ -47,7 +47,7 @@ def show_data_quality_checks(df):
         help="This only applies to selected key columns, not the whole dataset."
     )
 
-    if impute_option == "Interpolate":
+    if impute_option == "Interpolate (recommended)":
         df = impute_selected_columns(df, important_cols, method='interpolate')
         st.success("Missing values filled using interpolation.")
     elif impute_option == "Mean Imputation":

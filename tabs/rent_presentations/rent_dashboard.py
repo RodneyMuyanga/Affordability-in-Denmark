@@ -20,14 +20,13 @@ def main():
     if df is not None:
         st.dataframe(df)
 
-        tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+        tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
             "Development", 
             "Heatmap – Correlation", 
             "Boxplot", 
             "Growth Rates", 
             "Summary Stats",
-            "Forecast",
-            "Comparison"
+            "Forecast"
         ])
 
         with tab1:
@@ -48,10 +47,6 @@ def main():
         with tab6:
             forecast_rent(df)
 
-        with tab7:
-            compare_rent_vs_su()
-            st.markdown("---")
-            compare_rent_vs_food()
 
     else:
         st.error("Could not load the rent data file.")
