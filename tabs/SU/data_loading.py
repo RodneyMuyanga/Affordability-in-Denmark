@@ -18,6 +18,39 @@ def clean_living_situation(df):
     df = df[['Aar', df.columns[1]]].rename(columns={df.columns[1]: 'Count'})
     return df
 
+def impute_missing_values(df, method="interpolate"):
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
+    if method == "interpolate":
+        df[numeric_cols] = df[numeric_cols].interpolate(method='linear')
+    elif method == "mean":
+        df[numeric_cols] = df[numeric_cols].fillna(df[numeric_cols].mean())
+    elif method == "median":
+        df[numeric_cols] = df[numeric_cols].fillna(df[numeric_cols].median())
+    return df
+
+def transform_features(df):
+    if 'Stipendie' in df.columns:
+        df['log_Stipendie'] = np.log1p(df['Stipendie'])
+        df['norm_Stipendie'] = (df['Stipendie'] - df['Stipendie'].min()) / (df['Stipendie'].max() - df['Stipendie'].min())
+    return df
+
+def add_derived_metrics(df):
+    df['Support_Efficiency'] = np.nan
+    if 'Stipendie' in df.columns and 'Stipendie_årsvaerk' in df.columns:
+        df['Support_Efficiency'] = df['Stipendie'] / df['Stipendie_årsvaerk']
+
+    df['Loan_Burden_per_Taker'] = np.nan
+    if 'Laan' in df.columns and 'Antal_laan_tagere' in df.columns:
+        df['Loan_Burden_per_Taker'] = df['Laan'] / df['Antal_laan_tagere']
+
+    return df
+
+def label_ordinal_years(df):
+    df['Period'] = pd.cut(df['Aar'],
+                          bins=[2011, 2015, 2019, df['Aar'].max()],
+                          labels=['Early', 'Middle', 'Late'])
+    return df
+
 def load_and_clean_data(file_stipend, file_antal, file_aarsvaerk, file_home, file_not_home):
     stipend_df = clean_df(pd.read_excel(file_stipend))
     antal_df = clean_df(pd.read_excel(file_antal))
@@ -52,12 +85,16 @@ def load_and_clean_data(file_stipend, file_antal, file_aarsvaerk, file_home, fil
     merged_df['SU_pr_handicap'] = merged_df['Handicap_tillaeg'] / merged_df['Antal_handicap_tillaeg']
     merged_df['SU_pr_forsorger'] = merged_df['Forsorger_tillaeg'] / merged_df['Antal_forsorger_tillaeg']
 
-    # Advanced metrics
     merged_df['SU_to_loan_ratio'] = merged_df['Stipendie'] / (merged_df['Laan'] + 1)
     merged_df['Pct_handicap'] = merged_df['Antal_handicap_tillaeg'] / merged_df['Antal_stoettemodtagere']
     merged_df['Pct_forsorger'] = merged_df['Antal_forsorger_tillaeg'] / merged_df['Antal_stoettemodtagere']
 
-    merged_df = merged_df[merged_df['Aar'] >= 2000]
+    merged_df = merged_df[merged_df['Aar'] >= 2012]
+
+    merged_df = impute_missing_values(merged_df)
+    merged_df = transform_features(merged_df)
+    merged_df = add_derived_metrics(merged_df)
+    merged_df = label_ordinal_years(merged_df)
 
     return merged_df, home_df, not_home_df
 
@@ -67,18 +104,12 @@ def remove_outliers(df, cols, z_thresh=3):
     return df[mask]
 
 def add_living_situation_metrics(home_df, not_home_df):
-    # Merge living situation counts by year
     combined = home_df.merge(not_home_df, on='Aar', suffixes=('_home', '_not_home'))
-
-    # Calculate total counts
     combined['Total'] = combined['Count_home'] + combined['Count_not_home']
-
-    # Percent living at home and not at home
     combined['Pct_at_home'] = combined['Count_home'] / combined['Total']
     combined['Pct_not_home'] = combined['Count_not_home'] / combined['Total']
-
-    # Year-over-year growth (%)
     combined['Growth_home'] = combined['Count_home'].pct_change() * 100
     combined['Growth_not_home'] = combined['Count_not_home'].pct_change() * 100
-
     return combined
+
+

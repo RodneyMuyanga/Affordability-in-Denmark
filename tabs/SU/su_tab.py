@@ -9,9 +9,9 @@ from .procentile_analysis import show_percentile_analysis
 from .volatility_analysis import show_volatility_analysis
 
 def show_su_tab():
-    st.title("🎓 SU per Student Analysis (2000–2024)")
+    st.title("🎓 SU per Student Analysis (2012–2024)")
 
-    # CSS for better tab and radio button styling
+    # CSS 
     st.markdown("""
     <style>
         /* Style radio buttons (subtabs) */
@@ -37,9 +37,14 @@ def show_su_tab():
     df, home_df, not_home_df = load_and_clean_data(file_stipend, file_antal, file_aarsvaerk, file_home, file_not_home)
 
     year_min, year_max = int(df['Aar'].min()), int(df['Aar'].max())
-    year_range = st.slider('📅 Select year range:', year_min, year_max, (year_min, year_max))
+    year_range = st.slider('🗕️ Select year range:', year_min, year_max, (year_min, year_max))
     df_filtered = df[(df['Aar'] >= year_range[0]) & (df['Aar'] <= year_range[1])]
+
+    rows_before = len(df_filtered)
     df_filtered = show_data_quality_checks(df_filtered)
+    rows_after = len(df_filtered)
+    if rows_before != rows_after:
+        st.info(f"🔍 {rows_before - rows_after} rows removed due to outlier filtering.")
 
     with st.expander("🔍 Show raw data"):
         st.dataframe(df_filtered)
@@ -76,7 +81,7 @@ def show_su_tab():
         st.markdown("### Select analysis:")
         sub_tab = st.radio("", [
             "📋 Summary Stats",
-            "🧮 Regression",
+            "🧼 Regression",
             "🧪 Model Analysis",
             "🎯 Percentile Analysis"
         ])
@@ -86,8 +91,18 @@ def show_su_tab():
             st.markdown("View mean, standard deviation, min, and max for key metrics.")
             show_summary_stats(df_filtered)
 
-        elif sub_tab == "🧮 Regression":
-            st.subheader("🧮 Linear Regression Prediction")
+            with st.expander("💸 Loan Burden per Taker Over Time"):
+                st.markdown("""
+                **Loan Burden per Taker** = Total loans divided by number of borrowers.  
+                Higher values suggest students are taking on more debt.
+                """)
+                if 'Loan_Burden_per_Taker' in df_filtered.columns and df_filtered['Loan_Burden_per_Taker'].notna().any():
+                    st.line_chart(df_filtered.set_index('Aar')['Loan_Burden_per_Taker'])
+                else:
+                    st.warning("Loan Burden data is missing or not available.")
+
+        elif sub_tab == "🧼 Regression":
+            st.subheader("🧼 Linear Regression Prediction")
             st.markdown("Forecasts future SU and support using selected regression models.")
             linear_regression_prediction(df_filtered)
 
