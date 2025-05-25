@@ -7,10 +7,10 @@ from sklearn.linear_model import LinearRegression
 
 
 def forecast_rent(df):
-    st.subheader("📈 Forecast Rent Index (up to 2035)")
+    st.subheader("Forecast Rent Index (up to 2035)")
 
     region = st.selectbox("Select region to forecast:", df.index.tolist())
-    future_quarters = st.slider("Select number of quarters to forecast (max = 44 for 11 years)", 4, 44, 12)
+    future_quarters = st.slider("Select number of quarters to forecast (max = 40 for 10 years)", 4, 40, 12)
 
     df_T = df.T.reset_index().rename(columns={"index": "Kvartal"})
     df_T["Kvartal_nr"] = range(1, len(df_T) + 1)

@@ -10,7 +10,7 @@ def calc_growth(series):
     return total_growth, annualized_growth
 
 def show_summary(df):
-    st.header("📊 Huslejeudvikling – Total og årlig vækst")
+    st.header("Huslejeudvikling – Total vækst og årlig vækst")
 
     for region in df.index:
         series = df.loc[region]
@@ -20,7 +20,7 @@ def show_summary(df):
         st.write(f"Gennemsnitlig årlig vækst (CAGR): {cagr:.2f}%")
         st.markdown("---")
 
-    st.success("huslejeindekset har udviklet sig forskelligt på tværs af regioner og den gennemsnitlige årlige vækst viser om det er en stabil eller svingende udvikling.")
+
 
 def main():
     df = loadRentData("Data/Rent/Huslejeindeks_2021-2024.xlsx")

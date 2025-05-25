@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from tabs.rent_presentations.rent_data import loadRentData
 
 def show_boxplot(df):
-    st.header("📦 Boxplot – Huslejeindeks per kvartal (2021–2024)")
+    st.header("Boxplot – Huslejeindeks per kvartal (2021–2024)")
 
     df_t = df.T  # kvartaler som index
     df_melted = df_t.reset_index().melt(id_vars="index", var_name="Region", value_name="Indeks")
@@ -13,14 +13,11 @@ def show_boxplot(df):
     fig, ax = plt.subplots(figsize=(12, 6))
     sns.boxplot(x="Kvartal", y="Indeks", data=df_melted, palette="pastel")
     plt.xticks(rotation=45)
+    
     ax.set_title("Fordeling af huslejeindeks per kvartal")
     st.pyplot(fig)
 
-    st.markdown("**Forklaring:**")
-    st.markdown("""
-    - Boxplottet viser spredningen i huslejeindekset for de forskellige regioner i hvert kvartal.
-    - Det gør det nemt at se om variationen er lille (tæt samlet) eller stor (spredt).
-    """)
+
 
 def main():
     df = loadRentData("Data/Rent/Huslejeindeks_2021-2024.xlsx")

@@ -6,16 +6,16 @@ import matplotlib.pyplot as plt
 from tabs.rent_presentations.rent_data import loadRentData, plotRentData
 
 def show_correlation_heatmap(df):
-    st.header("📊 Korrelationsanalyse af huslejeindeks 2021 - 2024")
+    st.header("Korrelationsanalyse af huslejeindeks 2021 - 2024")
     st.write("Nedenfor ses et heatmap over korrelationerne mellem kvartalerne i 2024.")
 
-    # Sørger for at vi kun kigger på numeriske kolonner (de 4 kvartaler)
+
     numeric_df = df.select_dtypes(include=["float64", "int64"])
 
-    # Beregner korrelation
+
     corr = numeric_df.T.corr()
 
-    # Plotter heatmap
+
     fig, ax = plt.subplots(figsize=(8, 6))
     sns.heatmap(corr, annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
     st.pyplot(fig)

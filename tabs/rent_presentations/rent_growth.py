@@ -10,7 +10,7 @@ def calculate_growth(df):
     return df_growth.T
 
 def show_growth(df):
-    st.header("📈 Vækst i huslejeindeks – Kvartal over kvartal")
+    st.header("Vækst i huslejeindeks – Kvartal over kvartal")
 
     growth_df = calculate_growth(df)
 
@@ -24,7 +24,7 @@ def show_growth(df):
     ax.legend(title="Region")
     st.pyplot(fig)
 
-    if st.checkbox("📊 Vis vækstrate tabel"):
+    if st.checkbox("Vis vækstrate tabel"):
         st.dataframe(growth_df.round(2))
 
 def main():
@@ -32,4 +32,4 @@ def main():
     if df is not None:
         show_growth(df)
     else:
-        st.error("Kunne ikke indlæse datafilen.")
+        st.error("Kunne ikke indlæse datafilen")
