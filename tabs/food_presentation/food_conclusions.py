@@ -7,21 +7,18 @@ def show_conclusions():
     st.markdown("""
     **Purpose:**  
     We set out to uncover how food prices have evolved in Denmark from 2014 to 2024 and to identify which categories experienced the most instability.
+                This analysis set out to understand how annual food-price changes in Denmark influence household food expenditure and to evaluate whether rising prices lead to proportional increases in spending. 
+                Our original hypothesis—that higher price inflation would drive up total household food expenditure (in DKK)—held true only up to a point.
 
-    **Methodological choices:**  
-    - **Category Trend:** Line charts per category to track year-over-year changes.  
-    - **Overall Trend:** Average across all categories to answer the question “Have prices generally gone up or down?”  
-    - **Volatility:** Annual standard deviation to measure the dispersion of price changes.  
-    - **Cluster Analysis:** K-means clustering to classify categories as “stable” versus “volatile.”  
-    - **Comparison:** Selected key categories (bread, milk, vegetables) on the same axis to highlight differing dynamics.
+- **Key findings:**  
+  - From 2014 through 2021, modest price changes coincided with gradually rising food expenditures, suggesting relatively inelastic demand: households absorbed small inflationary pressures by paying more.  
+  - In 2022, a sharp price spike (~13 %) still saw total spending climb, but the rate of increase slowed compared to price inflation—indicating the limits of budget flexibility.  
+  - In 2022, despite elevated prices, overall food expenditure plateaued or even declined slightly, revealing that once prices exceed certain thresholds, households cut back consumption or substitute away from more expensive items.
 
-    **Key findings:**  
-    1. **Bread & cereal products** saw the largest spikes during the 2022–2023 inflationary peak.  
-    2. **Milk & dairy** exhibited larger year-to-year swings, while **vegetables** were the most volatile overall.  
-    3. The **overall average** hovered at or below 0% until 2021, then jumped sharply above 0% in 2022–2023.  
-    4. **Volatility** also peaked in this period, confirming external shock effects from COVID, raw-material price surges, and energy costs.
+- **Implications for BI & decision-making:**  
+  - **Threshold effects:** Demand elasticity becomes significant beyond moderate inflation levels. Early warning dashboards should flag rapid price increases in critical categories (e.g., dairy, cereals) to anticipate consumption shifts.  
+  - **Category sensitivity:** Dairy and oils exhibited the largest correlation between price spikes and spending cuts. Targeted interventions (e.g., subsidies or alternative supply channels) could soften the impact on vulnerable households.  
+  - **Forecasting value:** Combining machine learning (random forest) with time-series smoothing provides a reliable framework to predict spending trends and to simulate “what-if” scenarios under future price shocks.
 
-    **Implications:**  
-    - For **households**, this period of rapid price increases led to heightened budgeting uncertainty.  
-    - For **policy-makers** and **retailers**, these insights suggest the need for targeted support measures during extreme price fluctuations.  
-    """)
+In sum, while modest food-price inflation can be largely absorbed by Danish households, pronounced spikes force behavior changes—undermining the assumption that spending always scales with price. Business intelligence tools that integrate real-time price monitoring, consumption analytics, and forecast models can empower policymakers and retailers to design timely, data-driven support measures and maintain affordability.
+""")

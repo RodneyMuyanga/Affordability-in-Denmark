@@ -1,217 +1,225 @@
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
-from scipy.stats.mstats import winsorize
+import matplotlib.ticker as mtick
 
 from tabs.food_presentation.food_clean_data import load_and_clean          
 from tabs.food_presentation.food_clean_data_expenditure import load_and_clean_expenditure 
 
 def show_price_expenditure_correlation():
+    # 1) Load data
     _, price_df, price_years = load_and_clean()
-    cons_df, exp_years     = load_and_clean_expenditure()
-
-    # ── DEBUG: Dump shapes, column names and a snippet ──
-    st.write("**Price data shape:**", price_df.shape)
-    st.write("**Price years labels:**", price_years)
-    st.dataframe(price_df.head())
-
-    st.write("**Expenditure data shape:**", cons_df.shape)
-    st.write("**Expenditure years labels:**", exp_years)
-    st.dataframe(cons_df.head())
+    cons_df, exp_years       = load_and_clean_expenditure()
     
+    # 2) Melt prices → price_long
     price_long = price_df.melt(
-        id_vars="Category",
-        var_name="Year",
-        value_name="PriceChange"
+        id_vars   = "Category",
+        var_name  = "Year",
+        value_name= "PriceChange"
     )
+    # Trim ’.06’ osv. og hold kun årstallene
+    price_long["Year"] = price_long["Year"].astype(int)
     
-    price_long["Year"] = price_long["Year"].astype(str).str[:-3]
+    # 3) Melt expenditures → exp_long
+    #    Brug det OPRINDELIGE brede cons_df her
+    exp_long = cons_df.copy()
+    exp_long["Year"] = exp_long["Year"].astype(int)
+    # så har exp_long allerede præcis de kolonner vi skal bruge
 
-   
-    cons_long = cons_df.copy()
-    cons_long["Year"] = cons_long["Year"].astype(str)
-  
-
+    
+    # 4) Merge på Category+Year
     merged = price_long.merge(
-        cons_long,
+        exp_long,
         on=["Category","Year"],
         how="inner"
     )
-
-    corrs = (
-        merged
-        .groupby("Category")
-        .apply(lambda g: g["PriceChange"].corr(g["Expenditure"]))
-        .dropna()
-        .sort_values()
+    
+    # 5) Beregn Pearson-korrelation per kategori
+    rows = []
+    for cat, grp in merged.groupby("Category"):
+        corr = grp["PriceChange"].corr(grp["Expenditure"])
+        if pd.notna(corr):
+            rows.append((cat, corr))
+    corr_df = (
+        pd.DataFrame(rows, columns=["Category","Corr"])
+          .sort_values("Corr", ascending=True)
+          .reset_index(drop=True)
     )
-    corr_df = corrs.reset_index().rename(columns={0: "Corr"})
-
-    tab0, tab1, tab2, tab3 = st.tabs(["Price ↔ Expenditure Correlation by Category",
-    "Total Expenditure", "Trend Comparison", "Overall Trend"])
-
+    
+    # 6) Sæt tabs op
+    tab0, tab1, tab2, tab3 = st.tabs([
+        "Price ↔ Expenditure Correlation by Category",
+        "Scatter",
+        "Trend Comparison",
+        "Overall Trend"
+    ])
+    
+    # Tab 0: Korrelations-barplot
     with tab0:
-        st.subheader("📊 Price ↔ Expenditure Correlation by Category")
-        fig1, ax1 = plt.subplots(
-            figsize=(6, max(4, len(corr_df)*0.12)),  
-            dpi=120,
-            constrained_layout=True
+        st.subheader("📊 Correlation by Category")
+        fig, ax = plt.subplots(
+            figsize=(6, max(4, len(corr_df)*0.12)),
+            dpi=120, constrained_layout=True
         )
-        ax1.barh(corr_df["Category"], corr_df["Corr"], color="skyblue")
-        ax1.set_xlabel("Pearson correlation", fontsize=7)
-        ax1.set_title("Price change vs. expenditure", fontsize=8)
-        ax1.tick_params(axis='x', labelsize=6)
-        ax1.tick_params(axis='y', labelsize=6)
-        ax1.grid(alpha=0.3, axis="x")
-        st.pyplot(fig1, use_container_width=False)
+        ax.barh(corr_df["Category"], corr_df["Corr"], color="skyblue")
+        ax.set_xlabel("Pearson r")
+        ax.set_title("PriceChange vs. Expenditure")
+        ax.grid(axis="x", alpha=0.3)
+
+        ax.tick_params(axis='y', labelsize=6)
+
+      
+        for label in ax.get_yticklabels():
+            label.set_fontsize(6)
+     
+        st.pyplot(fig, use_container_width=False)
 
         st.markdown("""
-**What this chart shows:**  
-The horizontal bars represent the Pearson correlation coefficient between year-over-year price changes and average household expenditure for each food category.  
-- **Positive values** (bars to the right of zero) indicate categories where higher price increases tend to go hand-in-hand with higher spending—perhaps reflecting necessity or substitution effects.  
-- **Negative values** (bars to the left of zero) mean that steeper price hikes are generally associated with lower consumption spending in those categories.  
-
-By comparing these correlations, we can see which categories’ demand is most sensitive to price fluctuations.
+**How to read this chart:**  
+- Each horizontal bar shows the **Pearson correlation coefficient (r)** between year-over-year price changes and household expenditure for that food category.  
+- **Positive r** (bars to the right of zero) means that when prices rose, spending also tended to rise – suggesting **inelastic demand** or **necessity goods**.  
+- **Negative r** (bars to the left of zero) indicates that price increases coincided with drops in spending – a sign of **price sensitivity**.  
+- Categories with correlations near **0** show **little or no linear relationship** between price changes and expenditure.  
 """)
-
-
+    
+    # Tab 1: Scatter for én kategori
     with tab1:
-        st.subheader("🔍 Scatter: PriceChange vs. Expenditure")
+        
         sel = st.selectbox("Pick a category to inspect:", corr_df["Category"].tolist())
         sub = merged[merged["Category"] == sel]
+        st.subheader(f"🔍 {sel}")
 
-        fig2, ax2 = plt.subplots(
-            figsize=(3, 2), 
-            dpi=120,
-            constrained_layout=True
-        )
-        ax2.scatter(sub["PriceChange"], sub["Expenditure"], color="orange", s=15)
-        ax2.set_xlabel("Price Change (%)", fontsize=7)
-        ax2.set_ylabel("Expenditure", fontsize=7)
-        ax2.set_title(sel, fontsize=8)
-        ax2.tick_params(axis='x', labelsize=6)
-        ax2.tick_params(axis='y', labelsize=6)
-        ax2.grid(alpha=0.3)
-        st.pyplot(fig2, use_container_width=False)
+        years = sub["Year"].tolist()
+        x_pos  = list(range(len(years)))  
 
-        st.markdown("""
-**What this scatterplot shows:**  
-Each point represents one year’s data for the selected category:
-- **X-axis:** annual percentage price change  
-- **Y-axis:** average household expenditure in DKK  
+        fig, ax = plt.subplots(figsize=(3, 2), dpi=120, constrained_layout=True)
 
-A **rising trend** (upward slope) indicates that when prices went up, households still spent more—perhaps due to necessity or lack of close substitutes.  
-A **falling trend** (downward slope) suggests that higher prices led to lower spending, indicating more price-sensitive consumption.
-""")
-        
-    with tab2:
-        st.subheader("📈 Trend Comparison: Price vs. Expenditure Over Time")
-        sel2 = st.selectbox(
-            "Choose a category for trend view:",
-            corr_df["Category"].tolist(),
-            key="trend_cat"
-        )
-
-        # Filtrer de to datasæt for den valgte kategori
-        df_price = price_long[price_long["Category"] == sel2]
-        df_cons  = cons_long[cons_long["Category"]  == sel2]
-
-        # Find fælles årstal
-        common_years = sorted(
-            set(df_price["Year"]).intersection(df_cons["Year"]),
-            key=lambda y: int(y)
-        )
-
-        # Begræns serierne til kun de fælles år
-        df_price = df_price[df_price["Year"].isin(common_years)].sort_values("Year")
-        df_cons  = df_cons[ df_cons["Year"].isin(common_years) ].sort_values("Year")
-
-        # Opret figur med to y-akser
-        fig, ax1 = plt.subplots(
-            figsize=(5, 2.5),
-            dpi=120,
-            constrained_layout=True
-        )
-
-        # Plot prisændring på venstre akse
-        ax1.plot(
-            common_years,
-            df_price["PriceChange"].tolist(),
-            marker="o",
-            linestyle="-",
+        # Blå scatter: PriceChange over Year
+        ax.scatter(
+            sub["Year"].astype(str),
+            sub["PriceChange"],
+            s=20,
+            alpha=0.7,
+            label="PriceChange (%)",
             color="royalblue",
-            label="Price Change (%)"
+            marker="o"
         )
-        ax1.set_xlabel("Year", fontsize=7)
-        ax1.set_ylabel("Price Change (%)", fontsize=7)
-        ax1.tick_params(axis='x', labelsize=6, rotation=0)
-        ax1.tick_params(axis='y', labelsize=6)
-        ax1.grid(alpha=0.3)
+        ax.set_xlabel("Year", fontsize=4)
+        ax.set_ylabel("PriceChange (%)", color="royalblue", fontsize=6)
 
-        # Plot forbrug på højre akse
-        ax2 = ax1.twinx()
-        ax2.plot(
-            common_years,
-            df_cons["Expenditure"].tolist(),
-            marker="s",
-            linestyle="--",
+        ax.tick_params(axis="y", labelcolor="royalblue", labelsize=6)
+
+        # Orange scatter på sekundær akse: Expenditure over Year
+        ax2 = ax.twinx()
+        ax2.scatter(
+            sub["Year"].astype(str),
+            sub["Expenditure"],
+            s=20,
+            alpha=0.7,
+            label="Expenditure (DKK)",
             color="orange",
-            label="Expenditure (DKK)"
+            marker="s"
         )
-        ax2.set_ylabel("Expenditure (DKK)", fontsize=7)
-        ax2.tick_params(axis='y', labelsize=6)
+        ax2.set_ylabel("Expenditure (DKK)", color="orange", fontsize=6)
+        ax2.tick_params(axis="y", labelcolor="orange", labelsize=6)
 
-        # Sammensæt legend fra begge akser
-        lines1, labels1 = ax1.get_legend_handles_labels()
-        lines2, labels2 = ax2.get_legend_handles_labels()
-        ax1.legend(
-            lines1 + lines2,
-            labels1 + labels2,
-            fontsize=6,
-            loc="upper left"
-        )
+        ax.tick_params(axis='both', which='major', labelsize=6)
+        ax2.tick_params(axis='both', which='major', labelsize=6)
+
+        # Sammensæt legend
+        h1, l1 = ax.get_legend_handles_labels() 
+        h2, l2 = ax2.get_legend_handles_labels()
+        ax.legend(h1+h2, l1+l2, loc="upper left", fontsize=6)
 
         st.pyplot(fig, use_container_width=False)
 
-        st.markdown(f"""
-**What this comparison shows for *{sel2}*:**  
-- The **blue solid line** is the annual percentage *price change*.  
-- The **orange dashed line** is the average *household expenditure* in DKK.  
-""")
         st.markdown("""
-**What this trend comparison shows:**  
-Contrary to a “necessity good” pattern, here we see that **higher price increases coincide with lower household spending** in DKK for this category. This suggests:
-
-- **Price sensitivity**: When prices spike, consumers cut back rather than simply paying more.  
-- **Substitution effects**: Shoppers may switch to cheaper alternatives or reduce overall consumption of this item.  
-- **Budget constraints**: Steep price hikes force households to reprioritize their food budgets, leading to a drop in total expenditure.
-
-In other words, once prices exceed a certain threshold, demand falls off—highlighting the limits of consumers’ willingness or ability to absorb rising costs.
+**Explanation of the scatterplot:**  
+- **Blue circles** show the year-over-year **percentage change in food prices** for the selected category, plotted against calendar year.  
+- **Orange squares** show the corresponding **average household expenditure** in DKK for that same year and category.  
+- If points lie close together in the vertical direction, it means price changes and spending moved in tandem; wide vertical separation indicates a mismatch (e.g., prices up but spending down).  
 """)
-        
+
+    
+    # Tab 2: Trend comparison for én kategori
+    with tab2:
+        sel2 = st.selectbox("Trend comparison for…", corr_df["Category"], key="trend2")
+        dfp = price_long[price_long["Category"] == sel2].sort_values("Year")
+        dfe = exp_long  [exp_long["Category"]   == sel2].sort_values("Year")
+        years = sorted(set(dfp["Year"]).intersection(dfe["Year"]), key=int)
+        dfp2 = dfp[dfp["Year"].isin(years)]
+        dfe2 = dfe[dfe["Year"].isin(years)]
+
+        fig, ax1 = plt.subplots(figsize=(5,2.5), dpi=120, constrained_layout=True)
+        ax1.plot(years, dfp2["PriceChange"].tolist(), "-o", label="PriceChange (%)")
+        ax1.set_xlabel("Year"); ax1.set_ylabel("PriceChange (%)"); ax1.grid(alpha=0.3)
+        ax2 = ax1.twinx()
+        ax2.plot(years, dfe2["Expenditure"].tolist(), "--s", color="orange", label="Expenditure")
+        ax2.set_ylabel("Expenditure (DKK)")
+        h1,l1 = ax1.get_legend_handles_labels(); h2,l2 = ax2.get_legend_handles_labels()
+        ax1.legend(h1+h2, l1+l2, loc="upper center", fontsize=6)
+        st.pyplot(fig, use_container_width=False)
+
+        st.markdown("""
+**Explanation of the scatterplot:**  
+- **X-axis** shows the **calendar year** for the selected category.  
+- The **blue circles** plot the **year-over-year price change (%)** on the left y-axis.  
+- The **orange squares** plot the **average household expenditure (DKK)** on the right y-axis.  
+
+**How to read it:**  
+- Years where the blue dots are above zero indicate positive inflation in that category.  
+- Corresponding orange squares let you see, for each year, whether higher prices corresponded to higher or lower household spending in DKK each year.
+A downward-sloping orange line (e.g. from 2019 to 2020) indicates that spending fell even as prices rose.
+If both series climbed together, it would suggest that demand was price-inelastic (consumers continued purchasing despite higher costs)..  
+""")
+
+    
+    # Tab 3: Overall Trend
     with tab3:
+        st.subheader("🔄 Overall Trend: Avg Annual Price & Expenditure")
 
-        st.subheader("🔄 Overall Trend: Avg Annual Food Price Change")
-        # ── 1) Overall Trend ──
-        st.subheader("🔄 Overall Trend: Avg Annual Food Price Change")
-        yearly_avgs = price_df[price_years].mean(axis=0, skipna=True)
-        years_labels = pd.Index(price_years, dtype=str)
+        mask = "01 FØDEVARER OG IKKE-ALKOHOLISKE DRIKKEVARER"
 
-        # make this one smaller
-        fig0, ax0 = plt.subplots(figsize=(5, 2.5), dpi=150, constrained_layout=True)
-        ax0.plot(years_labels, yearly_avgs.values, marker='o', linestyle='-', color='teal')
+# 1) Filtrér til kun den ønskede kategori
+        total_exp = (
+            exp_long[exp_long["Category"] == mask]
+            .set_index("Year")["Expenditure"]     # sæt Year som indeks
+            .sort_index()                         # sørg for stigende år
+)
 
-        ax0.axhline(0, color='gray', linestyle='--', linewidth=0.8)
-        ax0.set_title("Avg Annual % Change (all categories)", fontsize=8, pad=6)
-        ax0.set_xlabel("Year", fontsize=7)
-        ax0.set_ylabel("Avg Change (%)", fontsize=7)
+        # Hvis du bruger samme liste af år som price_long, kan du reindexe:
+        years = price_long["Year"].unique().tolist()  # eller din years_labels
+        total_exp = total_exp.reindex(years).astype(float)
 
-        # shrink tick labels
-        ax0.tick_params(axis='x', labelsize=6, rotation=0)
-        ax0.tick_params(axis='y', labelsize=6)
+        # 1) Beregn gennemsnit pr. år
+        avg_price = price_long.groupby("Year")["PriceChange"].mean()
 
-        ax0.grid(alpha=0.3, linewidth=0.5)
+        # 2) Kun de år, som begge serier dækker
+        common_years = sorted(
+            set(avg_price.index).intersection(total_exp.index),
+            key=lambda y: int(y)
+        )
 
-        st.pyplot(fig0, use_container_width=False)
+        # 3) Byg nye serier, sikre samme længde
+        price_vals = [avg_price[y] for y in common_years]
+        exp_vals   = [total_exp[y]   for y in common_years]
 
-       
+        # 4) Plot med delt x-akse
+        fig, ax1 = plt.subplots(figsize=(5, 2.5), dpi=150, constrained_layout=True)
+        ax1.plot(common_years, price_vals, "-o", color="teal", label="Avg PriceChange (%)")
+        ax1.axhline(0, color="gray", linestyle="--")
+        ax1.set_ylabel("Avg PriceChange (%)")
+        ax1.set_xlabel("Year")
+        ax1.tick_params(axis="x", labelsize=6, rotation=0)
+
+        ax2 = ax1.twinx()
+        ax2.plot(common_years, exp_vals, "--s", color="orange", label="Avg Expenditure (DKK)")
+        ax2.set_ylabel("Avg Expenditure (DKK)")
+        ax2.tick_params(axis="y", labelsize=6)
+
+        # 5) Samlet legend
+        h1, l1 = ax1.get_legend_handles_labels()
+        h2, l2 = ax2.get_legend_handles_labels()
+        ax1.legend(h1 + h2, l1 + l2, loc="upper left", fontsize=6)
+
+        st.pyplot(fig, use_container_width=False)
