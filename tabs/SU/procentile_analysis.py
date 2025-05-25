@@ -17,19 +17,19 @@ def show_percentile_analysis(df):
         st.warning("Required columns missing: 'SU_pr_student' and 'Aar'")
         return
 
-    # Drop missing values in SU column
+    # missing values in SU column
     df = df.dropna(subset=['SU_pr_student'])
 
-    # Calculate percentile rank
+    # percentile rank
     df['Percentile'] = df['SU_pr_student'].rank(pct=True) * 100
 
-    # Format columns
+    # format columns
     df_percentiles = df[['Aar', 'SU_pr_student', 'Percentile']].sort_values('Aar')
     df_percentiles['Aar'] = df_percentiles['Aar'].astype(int).astype(str)
     df_percentiles['SU_pr_student'] = df_percentiles['SU_pr_student'].round(0).astype(int)
     df_percentiles['Percentile'] = df_percentiles['Percentile'].round(1)
 
-    # Display table
+    # table
     st.dataframe(df_percentiles.rename(columns={
         'Aar': 'Year',
         'SU_pr_student': 'SU per Student (DKK)',

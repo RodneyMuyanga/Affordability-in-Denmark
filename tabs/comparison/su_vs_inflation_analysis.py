@@ -18,42 +18,45 @@ def prepare_combined_data():
     # Load food price annual changes (percentages)
     _, food_data, years = load_food_price_data()
     
-    # Calculate average food price change across all categories per year
+    # food price change
     food_avg_changes = food_data.set_index('Category')[years].mean(axis=0).reset_index()
     food_avg_changes.columns = ['Year', 'Food_Price_Inflation']
     
-    # Extract only the year part (first 4 chars) from 'Year' strings like '2014M06'
+    # only the year part (first 4 chars) 
     food_avg_changes['Year_only'] = food_avg_changes['Year'].str[:4]
-    
-    # Drop original 'Year' column to avoid duplicates
     food_avg_changes = food_avg_changes.drop(columns=['Year'])
-    
-    # Rename 'Year_only' to 'Year' for merging
     food_avg_changes = food_avg_changes.rename(columns={'Year_only': 'Year'})
     
-    # Convert year column to int for filtering
+    # column to int for filtering
     min_year = int(food_avg_changes['Year'].min())
     max_year = int(food_avg_changes['Year'].max())
     
-    # Filter SU data to overlap years with food data
+
     su_filtered = su_df[(su_df['Aar'] >= min_year) & (su_df['Aar'] <= max_year)].copy()
     su_filtered['Year'] = su_filtered['Aar'].astype(str)
     
-    # Calculate year-over-year percentage growth for SU per student
+    # su growth calc
     su_filtered = su_filtered.sort_values('Aar')
     su_filtered['SU_growth_pct'] = su_filtered['SU_pr_student'].pct_change() * 100
     
-    # Merge SU data with food inflation on year
+    
     combined = pd.merge(
-        su_filtered[['Year', 'SU_pr_student', 'SU_growth_pct']],
+        su_filtered[['Year', 'SU_pr_student', 'SU_growth_pct', 'Aar']],
         food_avg_changes,
         on='Year',
         how='inner'
     )
     
-    # Calculate real SU growth adjusted by food inflation
+    # real SU growth adjusted by food inflation
     combined['Real_SU_growth_pct'] = combined['SU_growth_pct'] - combined['Food_Price_Inflation']
-    
+
+    # ordinal periods based on year
+    combined['Period'] = pd.cut(
+        combined['Aar'],
+        bins=[2011, 2015, 2019, combined['Aar'].max()],
+        labels=['Early', 'Middle', 'Late']
+    )
+
     return combined
 
 def plot_comparison(df_combined):
@@ -84,24 +87,43 @@ def plot_comparison(df_combined):
 
     st.pyplot(fig)
 
+def summarize_by_period(df):
+    st.subheader("📘 SU vs Inflation: Summary by Period")
+
+    for period in ['Early', 'Middle', 'Late']:
+        group = df[df['Period'] == period]
+        if group.empty:
+            continue
+
+        years_all = group['Aar'].tolist()
+        kept_up_years = group[group['Real_SU_growth_pct'] >= 0]['Aar'].tolist()
+        lagged_years = group[group['Real_SU_growth_pct'] < 0]['Aar'].tolist()
+
+        st.markdown(f"""
+**{period} Years ({len(years_all)} total):** {', '.join(str(y) for y in years_all)}
+
+✅ Kept up: {', '.join(str(y) for y in kept_up_years) if kept_up_years else '—'}  
+❌ Lagged: {', '.join(str(y) for y in lagged_years) if lagged_years else '—'}
+""")
+
 def run_su_vs_inflation_analysis():
     st.title("💰 SU vs Food Price Inflation Comparison")
 
     combined_df = prepare_combined_data()
     st.dataframe(combined_df)
 
-    # Year selector widget
+    # selector widget
     years = combined_df['Year'].tolist()
     selected_year = st.selectbox("Select year to analyze:", options=years, index=len(years) - 1)
 
-    # Get data for selected year
+    # data for selected year
     row = combined_df[combined_df['Year'] == selected_year].iloc[0]
 
     su_growth = row['SU_growth_pct']
     food_inflation = row['Food_Price_Inflation']
     real_su_growth = row['Real_SU_growth_pct']
 
-    # Display summary info
+    # summary info
     st.markdown(f"### Year {selected_year} Analysis")
     st.markdown(f"- **SU Growth:** {su_growth:.2f}%")
     st.markdown(f"- **Food Price Inflation:** {food_inflation:.2f}%")
@@ -122,6 +144,9 @@ def run_su_vs_inflation_analysis():
     - Green shows SU growth adjusted by food inflation, indicating if SU increases keep pace with food prices.
     - Values below zero in green mean SU has lagged behind inflation in that year.
     """)
+
+    with st.expander("📘 Show Summary by Period (Early, Middle, Late)"):
+        summarize_by_period(combined_df)
 
 if __name__ == "__main__":
     run_su_vs_inflation_analysis()

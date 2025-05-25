@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
-# Plot line chart for SU metrics
+# line chart for SU metrics
 def plot_line_chart(df_filtered):
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.plot(df_filtered['Aar'], df_filtered['SU_pr_student'], marker='o', color='teal', label='Total SU per student')
@@ -17,7 +17,7 @@ def plot_line_chart(df_filtered):
     fig.tight_layout()
     st.pyplot(fig)
 
-# Summary statistics under the line chart
+# Summary statistics
 def show_conclusions_for_plot_line_chart(df_filtered):
     st.markdown("**Conclusions:**")
     st.write(f"Average SU per student over selected years: {df_filtered['SU_pr_student'].mean():,.0f} DKK")
@@ -88,7 +88,7 @@ def show_growth_rates(df):
         fig.tight_layout()
         st.pyplot(fig)
 
-# Show total growth and CAGR for SU metrics (with checkbox)
+# Show total growth and CAGR for SU metrics 
 def show_su_growth_summary(df):
     def calc_growth_stats(series, label):
         start_val = series.iloc[0]

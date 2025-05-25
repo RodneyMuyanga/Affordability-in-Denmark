@@ -13,7 +13,7 @@ def show_volatility_analysis(df):
     Note: The first two years will not have volatility values because of the 3-year window.
     """)
 
-    # Drop NaNs for plotting volatility
+    # drop NaNs for plotting volatility
     df_vol = df.dropna(subset=['SU_growth_volatility_3yr'])
 
     fig, ax = plt.subplots(figsize=(10, 5))
